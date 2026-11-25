@@ -11,6 +11,7 @@ path-style URLs.
 - Bucket and object CRUD; batch deletion; ListObjectsV2 with prefixes, pagination, and delimiters.
 - Optional SigV4 authentication and presigned GET / HEAD / PUT URLs.
 - Multiple access keys with individual disable/rotation through startup configuration.
+- Per-key bucket read/read-write grants; separate administrator access for bucket settings and metrics.
 - Multipart uploads with resumable parts, pagination, abort, and expiration.
 - Stream object/part uploads to disk with bounded buffers and incremental integrity checks.
 - Range downloads, conditional reads/writes, ETags, and Content-Type metadata.
@@ -143,7 +144,7 @@ See [administration](docs/administration.md) for guarantees, limits, and recover
 moon test --target native
 moon info && moon fmt
 bash scripts/smoke.sh
-for suite in auth credentials list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
+for suite in auth credentials permissions list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
   python3 "scripts/${suite}_regression.py"
 done
 ```

@@ -2,7 +2,7 @@
 fn parse_settings(text : String) -> Map[String, String] raise {
   let document = @json.parse(
     text,
-    max_nesting_depth=4,
+    max_nesting_depth=5,
     reject_duplicate_keys=true,
   )
   let fields = match document {

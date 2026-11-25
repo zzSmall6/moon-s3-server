@@ -17,6 +17,8 @@ type CorsResponse
 #derive(Eq, @debug.Debug)
 type CorsRule
 
+type Credential
+
 #derive(Eq, @debug.Debug)
 type DownloadRange
 

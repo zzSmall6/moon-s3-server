@@ -1,8 +1,8 @@
 # Bucket public-read access
 
-With `MOON_S3_ACCESS_KEY` and `MOON_S3_SECRET_KEY` configured, buckets default
-to private. The configured credential pair owns all buckets and can manage
-them using SigV4. A restricted S3 Bucket Policy API grants anonymous object
+With a credential list or the legacy key pair configured, buckets default
+to private. Administrator credentials manage buckets using SigV4; application
+keys follow their [bucket grants](credentials.md). A restricted S3 Bucket Policy API grants anonymous object
 reads. It is verified with botocore 1.44.0.
 
 When neither a credential list nor the legacy key pair is configured, the server retains its anonymous development

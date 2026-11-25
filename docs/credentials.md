@@ -1,10 +1,11 @@
 # Access keys and rotation
 
 The server supports one legacy key pair or a list of 1–64 credentials.
-All enabled credentials act on the same storage and have the same full
-permissions, including management APIs and metrics. This provides separate
-application secrets and individual revocation; it does not provide users,
-tenants, object ownership or bucket-level authorization.
+Enabled credentials act on the same storage. Credentials without a
+`permissions` field keep full administrator access, including management APIs
+and metrics. Add exact bucket grants to restrict application keys to reads or
+reads/writes. This provides bucket-level authorization and individual
+revocation; it does not provide users, tenants, object ownership or full IAM.
 
 ## Configure multiple credentials
 
@@ -17,7 +18,8 @@ MOON_S3_CONFIG=./local-config.json \
 ```
 
 `credentials` is a JSON array. Each entry requires `access_key` and
-`secret_key`; `enabled` is an optional boolean defaulting to `true`. Unknown
+`secret_key`; `enabled` is an optional boolean defaulting to `true`, and
+`permissions` is an optional bucket-grant object. Unknown
 fields, duplicate access keys (including disabled entries), invalid types,
 empty lists and lists longer than 64 fail startup. New access keys contain
 1–128 ASCII letters, digits, hyphens or underscores. Secrets must be nonblank,
@@ -67,17 +69,77 @@ Header-signed and presigned requests select the matching enabled access key
 and still undergo full signature, timestamp and payload verification. A
 disabled/unknown key or incorrect signature cannot fall back to a public-read
 policy. Changing a key's secret invalidates signatures made with the old
-secret after restart. All keys share multipart state: another enabled key can
-resume an upload created by the old key, because no per-key ownership is
+secret after restart. Keys share multipart state: another enabled key with
+write access to that bucket can resume an upload created by the old key, because no per-key ownership is
 implemented. Stored data, versions and bucket settings do not change during
 rotation.
 
 Credentials are startup settings, excluded from storage backups. Keep them
 in your secret-management backup and recovery process. Request logs and
 configuration-error messages do not include access keys, secrets or signed
-URLs. Metrics remain signed APIs and accept any enabled key. Offline admin
+URLs. Metrics remain signed APIs and require an administrator key. Offline admin
 uses the local storage lock and requires no S3 credentials.
 
 Run `python3 scripts/credentials_regression.py` for signature isolation,
 multi-key CRUD/copy/multipart use, presigned revocation, public-read boundaries,
 all-disabled behavior, environment override and invalid-configuration checks.
+
+## Restrict application keys to buckets
+
+```json
+{
+  "access_key": "backup-application",
+  "secret_key": "replace-this-application-secret",
+  "permissions": {
+    "images": "read",
+    "backups": "read-write"
+  }
+}
+```
+
+Bucket names match exactly, case-sensitively, with no wildcards or prefixes.
+The grant object supports at most 64 valid bucket names. Missing buckets
+remain inaccessible. Unknown permission values, invalid bucket names, reserved
+`healthz`/`metrics` names, duplicate JSON fields and non-object grants fail
+startup, including for disabled credentials. An empty object grants nothing;
+omitting the field grants full administration for compatibility. Keep at least
+one protected administrator credential for provisioning and management.
+
+| Capability | `read` | `read-write` |
+| --- | --- | --- |
+| Object GET/HEAD, historical reads | Yes | Yes |
+| Bucket HEAD/location, object/version listing, upload/part listing | Yes | Yes |
+| Object PUT/DELETE, historical deletion, batch deletion | No | Yes |
+| Multipart create/upload/complete/abort | No | Yes |
+| CopyObject destination | No | Yes, with read access to the source bucket |
+| Create/delete buckets, list all buckets, metrics | No | No |
+| Get/change bucket policy, CORS or versioning settings | No | No |
+
+The administrator creates buckets and configures their settings; application
+keys operate on objects within granted buckets. Restricted clients must address
+their known buckets directly: `ListBuckets` returns 403 instead of disclosing
+other bucket names. Unsupported or malformed operations can still return their
+normal validation errors after permission checks.
+
+CopyObject checks both the destination write grant and the source read grant,
+including a versioned source. Public source objects do not waive that grant
+for a restricted signed copy. Presigned GET/HEAD/PUT requests enforce the same
+current credential grants. After changing a key's grants and restarting, old
+URLs for revoked buckets fail with 403. A signed request denied by its grants
+does not fall back to a public bucket policy. An unsigned public read still
+uses the bucket's existing public-read policy; removing a key grant does not
+make public data private.
+
+These grants do not restrict individual prefixes, versions, upload creators,
+or offline filesystem access. They are startup configuration, not an S3 IAM
+API, and changing them requires restart. Authentication still validates
+signatures and payloads before authorization; denied upload bodies can use
+bounded temporary staging, but cannot publish objects or mutate upload parts.
+The separate Web console should retain a trusted administrator credential
+because its management views use administrator APIs; this change adds no
+per-user console login or tenant isolation. Health and CORS preflight remain
+public protocol endpoints.
+
+Run `python3 scripts/permissions_regression.py` to verify the matrix, exact
+bucket boundaries, source/destination copy checks, multipart state protection,
+presigned revocation and rejection of malformed grants.

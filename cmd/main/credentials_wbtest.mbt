@@ -1,8 +1,11 @@
 ///|
 test "credential set preserves authentication with all keys disabled" {
-  assert_eq(load_credentials(None, None, None), None)
+  assert_true(load_credentials(None, None, None) is None)
   let legacy = load_credentials(None, Some("legacy"), Some("secret")).unwrap()
-  assert_eq(legacy.get("legacy"), Some("secret"))
+  assert_eq(
+    legacy.get("legacy").map(credential => credential.secret),
+    Some("secret"),
+  )
   let disabled = load_credentials(
     Some(
       "[{\"access_key\":\"revoked\",\"secret_key\":\"secret\",\"enabled\":false}]",
@@ -18,6 +21,12 @@ test "credential set preserves authentication with all keys disabled" {
     None,
     None,
   ).unwrap()
-  assert_eq(credentials.get("first"), Some("one"))
-  assert_eq(credentials.get("second"), Some("two"))
+  assert_eq(
+    credentials.get("first").map(credential => credential.secret),
+    Some("one"),
+  )
+  assert_eq(
+    credentials.get("second").map(credential => credential.secret),
+    Some("two"),
+  )
 }

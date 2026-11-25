@@ -2,7 +2,7 @@
 struct Config {
   root : String
   listen : String
-  credentials : Map[String, String]?
+  credentials : Map[String, Credential]?
   cors_origin : String
   mutation_lock : @async.Mutex
   multipart_ttl : Int64
@@ -188,7 +188,7 @@ fn authorize(
         }
       }
       match credentials.get(identifier) {
-        Some(secret) => (identifier, secret)
+        Some(credential) => (identifier, credential.secret)
         None => return false
       }
     }
@@ -1007,6 +1007,17 @@ async fn handle_request(
       403,
       "AccessDenied",
       "Signature verification failed.",
+      config.cors_origin,
+    )
+    return
+  }
+  if !public_read_candidate(config, request, raw_path, params) &&
+    !request_permission(config, request, raw_path, params) {
+    send_error(
+      conn,
+      403,
+      "AccessDenied",
+      "The access key is not permitted to perform this operation.",
       config.cors_origin,
     )
     return

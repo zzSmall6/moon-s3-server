@@ -2,8 +2,10 @@
 
 Startup configuration now accepts 1–64 credentials with individual enable/
 disable flags, including presigned URL revocation after restart. Legacy
-single-key settings remain supported. All enabled keys share full access;
-bucket/user isolation is not included. See docs/credentials.md for migration.
+single-key settings remain supported. Optional per-key `permissions` map exact
+bucket names to `read` or `read-write`; scoped keys cannot manage buckets or
+metrics. Copy verifies both source read and destination write access. Omitting
+permissions preserves administrator access. See docs/credentials.md for migration.
 
 Object/part uploads now preserve a configurable free disk reserve (64 MiB
 by default). Admission and per-chunk checks reject insufficient or unavailable

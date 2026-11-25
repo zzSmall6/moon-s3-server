@@ -1,11 +1,17 @@
 ///|
-fn parse_credentials(document : Json) -> Map[String, String] raise {
+struct Credential {
+  secret : String
+  permissions : Map[String, Bool]?
+}
+
+///|
+fn parse_credentials(document : Json) -> Map[String, Credential] raise {
   let entries = match document {
     Array(entries) if entries.length() >= 1 && entries.length() <= 64 => entries
     _ => raise Failure("Expected 1-64 credentials")
   }
   let seen : Map[String, Bool] = Map([])
-  let active : Map[String, String] = Map([])
+  let active : Map[String, Credential] = Map([])
   for entry in entries {
     let fields = match entry {
       Object(fields) => fields
@@ -13,7 +19,9 @@ fn parse_credentials(document : Json) -> Map[String, String] raise {
     }
     if fields
       .keys()
-      .any(name => !["access_key", "secret_key", "enabled"].contains(name)) {
+      .any(name => {
+        !["access_key", "secret_key", "enabled", "permissions"].contains(name)
+      }) {
       raise Failure("Unknown credential field")
     }
     let access = match fields.get("access_key") {
@@ -50,8 +58,31 @@ fn parse_credentials(document : Json) -> Map[String, String] raise {
       Some(False) => false
       _ => raise Failure("Expected boolean enabled")
     }
+    let permissions = match fields.get("permissions") {
+      None => None
+      Some(Object(grants)) => {
+        if grants.length() > 64 {
+          raise Failure("Too many bucket grants")
+        }
+        let permissions : Map[String, Bool] = Map([])
+        for bucket, permission in grants {
+          if !@core.valid_bucket_name(bucket) ||
+            bucket == "metrics" ||
+            bucket == "healthz" {
+            raise Failure("Invalid bucket grant")
+          }
+          permissions[bucket] = match permission {
+            String("read") => false
+            String("read-write") => true
+            _ => raise Failure("Invalid bucket permission")
+          }
+        }
+        Some(permissions)
+      }
+      _ => raise Failure("Expected bucket permission object")
+    }
     if enabled {
-      active[access] = secret
+      active[access] = { secret, permissions, }
     }
   }
   active
@@ -62,7 +93,7 @@ fn load_credentials(
   text : String?,
   access : String?,
   secret : String?,
-) -> Map[String, String]? raise {
+) -> Map[String, Credential]? raise {
   match text {
     Some(text) => {
       if access is Some(_) ||
@@ -72,7 +103,7 @@ fn load_credentials(
       }
       Some(
         parse_credentials(
-          @json.parse(text, max_nesting_depth=3, reject_duplicate_keys=true),
+          @json.parse(text, max_nesting_depth=4, reject_duplicate_keys=true),
         ),
       )
     }
@@ -82,7 +113,11 @@ fn load_credentials(
       }
       match (access, secret) {
         (Some(access), Some(secret)) =>
-          Some(Map::from_array([(access, secret)]))
+          Some(
+            Map::from_array([
+              (access, Credential::{ secret, permissions: None, }),
+            ]),
+          )
         _ => None
       }
     }
