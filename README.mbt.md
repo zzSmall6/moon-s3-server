@@ -4,7 +4,7 @@ A small S3-compatible object storage server written in MoonBit, for local
 development, CI, and private deployments. Stores data on local disk and uses
 path-style URLs.
 
-**Status:** early development (`v0.2`); not production-ready.
+**Status:** early development (`v0.1.1`); not production-ready.
 
 ## Features
 

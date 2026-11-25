@@ -1,4 +1,4 @@
-# v0.2.0 preview
+# v0.1.1 preview
 
 Startup configuration now accepts 1–64 credentials with individual enable/
 disable flags, including presigned URL revocation after restart. Legacy
