@@ -2,7 +2,7 @@
 fn parse_settings(text : String) -> Map[String, String] raise {
   let document = @json.parse(
     text,
-    max_nesting_depth=2,
+    max_nesting_depth=4,
     reject_duplicate_keys=true,
   )
   let fields = match document {
@@ -11,7 +11,10 @@ fn parse_settings(text : String) -> Map[String, String] raise {
   }
   let settings : Map[String, String] = Map([])
   for name, value in fields {
-    if name == "min_free_disk_bytes" {
+    if name == "credentials" {
+      ignore(parse_credentials(value))
+      settings[name] = value.stringify()
+    } else if name == "min_free_disk_bytes" {
       match value {
         Number(number, ..) if number >= 0.0 &&
           number <= 1099511627776.0 &&

@@ -42,7 +42,7 @@ fn parse_versioned_copy_source(value : String) -> (String, String, String?)? {
 
 ///|
 fn copy_source_authorized(config : Config, request : @http.Request) -> Bool {
-  if config.access_key is None {
+  if config.credentials is None {
     return true
   }
   let (_, query) = @core.split_raw_path(request.path)

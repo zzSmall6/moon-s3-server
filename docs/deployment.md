@@ -20,8 +20,10 @@ file selected, the existing defaults apply. Keys are lowercase versions of the
 environment variable suffix: `root`, `listen`, `access_key`, `secret_key`,
 `cors_origin`, `multipart_ttl_seconds`, `webhook_url`, `webhook_secret`,
 `webhook_timeout_ms`, `shutdown_timeout_ms`, `max_request_bytes`,
-`max_buffered_bytes`, `max_staged_bytes`, `min_free_disk_bytes`, `max_connections` and `request_timeout_ms`. The timeout,
-lifetime and resource-limit settings are JSON integers; all other settings are strings. Unknown keys,
+`max_buffered_bytes`, `max_staged_bytes`, `min_free_disk_bytes`, `max_connections` and `request_timeout_ms`, plus the
+structured `credentials` array for [multiple access keys](credentials.md). The timeout,
+lifetime and resource-limit settings are JSON integers; credentials is an array of
+objects and the remaining settings are strings. Unknown keys,
 duplicate keys, invalid types and unreadable files fail startup.
 
 Environment variables override matching file values, including empty strings;

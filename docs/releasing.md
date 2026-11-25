@@ -7,7 +7,7 @@ MoonBit module name remains `Zz04321/moon-s3-server` to preserve imports.
 ## Automation
 
 - **CI** runs on pushes to `main`, pull requests and manual dispatch. It checks
-  formatting/interfaces, native compilation, unit tests, smoke, all 19 local
+  formatting/interfaces, native compilation, unit tests, smoke, all 20 local
   regression suites and the extracted release bundle. Reports and the test
   bundle are retained as Actions artifacts for 14 days.
 - **External compatibility** runs manually. It installs locked clients,

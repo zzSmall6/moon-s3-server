@@ -2,8 +2,7 @@
 struct Config {
   root : String
   listen : String
-  access_key : String?
-  secret_key : String?
+  credentials : Map[String, String]?
   cors_origin : String
   mutation_lock : @async.Mutex
   multipart_ttl : Int64
@@ -50,8 +49,11 @@ async fn load_config() -> Config {
   Config::{
     root: setting("root", "./data"),
     listen: setting("listen", "127.0.0.1:9000"),
-    access_key: optional("access_key"),
-    secret_key: optional("secret_key"),
+    credentials: load_credentials(
+      optional("credentials"),
+      optional("access_key"),
+      optional("secret_key"),
+    ),
     cors_origin: setting("cors_origin", "*"),
     mutation_lock: @async.Mutex(),
     multipart_ttl: range_number(setting("multipart_ttl_seconds", "604800")).unwrap_or(
@@ -170,65 +172,75 @@ fn authorize(
   let actual_hash = digest.unwrap_or_else(() => {
     @core.sha256_hex(body.clamped_view())
   })
-  match config.access_key {
-    None => true
-    Some(access_key) =>
-      match config.secret_key {
-        None => false
-        Some(secret_key) => {
-          if has_query_auth(params) {
-            return authorize_presigned(
-              request,
-              raw_path,
-              params,
-              body,
-              access_key,
-              secret_key,
-              (@env.now() / 1000UL).reinterpret_as_int64(),
-              digest=actual_hash,
-            )
-          }
-          if !signature_time_valid(
-              header(request.headers, "x-amz-date"),
-              (@env.now() / 1000UL).reinterpret_as_int64(),
-            ) {
-            return false
-          }
-          let auth_value = header(request.headers, "authorization")
-          if auth_value.is_empty() {
-            return false
-          }
-          match @core.parse_authorization(auth_value) {
-            None => false
-            Some(auth) => {
-              let pairs : Array[(String, String)] = []
-              for item in auth.signed_headers.split(";") {
-                let name = item.to_owned()
-                pairs.push((name, header(request.headers, name)))
-              }
-              let payload_hash = match
-                header(request.headers, "x-amz-content-sha256") {
-                "" => actual_hash
-                value => value
-              }
-              if payload_hash != "UNSIGNED-PAYLOAD" &&
-                payload_hash != actual_hash {
-                return false
-              }
-              @core.verify_sigv4(
-                method_name(request.meth),
-                raw_path,
-                params,
-                pairs,
-                payload_hash,
-                auth_value,
-                access_key,
-                secret_key,
-              )
-            }
-          }
+  let (access_key, secret_key) = match config.credentials {
+    None => return true
+    Some(credentials) => {
+      let identifier = if has_query_auth(params) {
+        match @core.query_value(params, "X-Amz-Credential") {
+          Some(value) => value.split("/").next().unwrap_or("").to_owned()
+          None => return false
+        }
+      } else {
+        match
+          @core.parse_authorization(header(request.headers, "authorization")) {
+          Some(auth) => auth.access_key
+          None => return false
         }
       }
+      match credentials.get(identifier) {
+        Some(secret) => (identifier, secret)
+        None => return false
+      }
+    }
+  }
+  if has_query_auth(params) {
+    return authorize_presigned(
+      request,
+      raw_path,
+      params,
+      body,
+      access_key,
+      secret_key,
+      (@env.now() / 1000UL).reinterpret_as_int64(),
+      digest=actual_hash,
+    )
+  }
+  if !signature_time_valid(
+      header(request.headers, "x-amz-date"),
+      (@env.now() / 1000UL).reinterpret_as_int64(),
+    ) {
+    return false
+  }
+  let auth_value = header(request.headers, "authorization")
+  if auth_value.is_empty() {
+    return false
+  }
+  match @core.parse_authorization(auth_value) {
+    None => false
+    Some(auth) => {
+      let pairs : Array[(String, String)] = []
+      for item in auth.signed_headers.split(";") {
+        let name = item.to_owned()
+        pairs.push((name, header(request.headers, name)))
+      }
+      let payload_hash = match header(request.headers, "x-amz-content-sha256") {
+        "" => actual_hash
+        value => value
+      }
+      if payload_hash != "UNSIGNED-PAYLOAD" && payload_hash != actual_hash {
+        return false
+      }
+      @core.verify_sigv4(
+        method_name(request.meth),
+        raw_path,
+        params,
+        pairs,
+        payload_hash,
+        auth_value,
+        access_key,
+        secret_key,
+      )
+    }
   }
 }
 
@@ -1417,7 +1429,7 @@ async fn start_server() -> Unit {
   let config = load_config() catch {
     _ => {
       log_event(
-        "error", "configuration_invalid", "Cannot load configuration: expected a readable UTF-8 JSON object with known settings and valid types.",
+        "error", "configuration_invalid", "Cannot load configuration: expected known settings and valid types. Legacy credentials must both be set and non-empty, or both unset; do not combine them with credentials.",
       )
       @env.exit(1)
     }
@@ -1454,12 +1466,6 @@ async fn start_server() -> Unit {
   if config.multipart_ttl < 1L || config.multipart_ttl > 31536000L {
     log_event(
       "error", "configuration_invalid", "MOON_S3_MULTIPART_TTL_SECONDS must be between 1 and 31536000.",
-    )
-    @env.exit(1)
-  }
-  if !valid_credentials(config.access_key, config.secret_key) {
-    log_event(
-      "error", "configuration_invalid", "MOON_S3_ACCESS_KEY and MOON_S3_SECRET_KEY must both be set and non-empty, or both unset.",
     )
     @env.exit(1)
   }

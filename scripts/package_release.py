@@ -38,7 +38,7 @@ def main():
     subprocess.run(["moon", "build", "cmd/main", "--target", "native", "--release"], cwd=PROJECT, check=True)
     files = {}
     files["bin/moon-s3-server"] = ((PROJECT / "_build/native/release/build/cmd/main/main.exe").read_bytes(), 0o755)
-    sources = ["LICENSE", "README.mbt.md", "compose.yaml", "deploy/config.example.json", "deploy/nginx.conf", "deploy/Dockerfile.release",
+    sources = ["LICENSE", "README.mbt.md", "compose.yaml", "deploy/config.example.json", "deploy/credentials.example.json", "deploy/nginx.conf", "deploy/Dockerfile.release",
                "scripts/compatibility-lock.json", "scripts/toolchain-lock.json"]
     sources += [f"scripts/{name}" for name in RUNTIME_SCRIPTS]
     sources += [str(path.relative_to(PROJECT)) for folder in ["docs", "console"]

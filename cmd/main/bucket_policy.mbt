@@ -136,7 +136,7 @@ fn public_read_candidate(
   raw_path : String,
   params : Array[@core.QueryParam],
 ) -> Bool {
-  if config.access_key is None ||
+  if config.credentials is None ||
     !(request.meth is Get || request.meth is Head) ||
     has_query_auth(params) ||
     params.any(param => param.name != "versionId") {

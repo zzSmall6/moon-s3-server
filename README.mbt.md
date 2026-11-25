@@ -10,6 +10,7 @@ path-style URLs.
 
 - Bucket and object CRUD; batch deletion; ListObjectsV2 with prefixes, pagination, and delimiters.
 - Optional SigV4 authentication and presigned GET / HEAD / PUT URLs.
+- Multiple access keys with individual disable/rotation through startup configuration.
 - Multipart uploads with resumable parts, pagination, abort, and expiration.
 - Stream object/part uploads to disk with bounded buffers and incremental integrity checks.
 - Range downloads, conditional reads/writes, ETags, and Content-Type metadata.
@@ -67,6 +68,7 @@ and run `python3 scripts/console.py`; visit `http://127.0.0.1:9001`.
 | `MOON_S3_LISTEN` | `127.0.0.1:9000` | Listen address |
 | `MOON_S3_ACCESS_KEY` | Unset | Enable SigV4 authentication |
 | `MOON_S3_SECRET_KEY` | Unset | Secret paired with the access key |
+| `MOON_S3_CREDENTIALS` | Unset | JSON credential array; alternative to the legacy key pair |
 | `MOON_S3_CORS_ORIGIN` | `*` | Fallback origin for buckets without CORS rules |
 | `MOON_S3_MULTIPART_TTL_SECONDS` | `604800` | Upload lifetime from creation; 1–31536000 seconds |
 | `MOON_S3_WEBHOOK_URL` | Unset | Enable object-event delivery to an HTTP(S) endpoint |
@@ -80,9 +82,10 @@ and run `python3 scripts/console.py`; visit `http://127.0.0.1:9001`.
 | `MOON_S3_MAX_CONNECTIONS` | `128` | Maximum simultaneous connections; 1–4096 |
 | `MOON_S3_REQUEST_TIMEOUT_MS` | `30000` | Header-read and request-handling deadlines; 100–3600000 ms |
 
-Set both credentials to nonempty values to enable authentication; leaving both
-unset allows anonymous access. Use a trusted network and a TLS reverse proxy
+Set the legacy key pair or a credential list to enable authentication; leaving
+both forms unconfigured allows anonymous access. Use a trusted network and a TLS reverse proxy
 for deployments beyond localhost.
+For multiple applications and key rotation, see [access keys](docs/credentials.md).
 See [deployment and operations](docs/deployment.md) for configuration files,
 Docker/Compose, shutdown behavior, JSON logs, and authenticated `GET /metrics`.
 With credentials enabled, buckets default to private. [Bucket policies](docs/access-control.md)
@@ -140,7 +143,7 @@ See [administration](docs/administration.md) for guarantees, limits, and recover
 moon test --target native
 moon info && moon fmt
 bash scripts/smoke.sh
-for suite in auth list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
+for suite in auth credentials list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
   python3 "scripts/${suite}_regression.py"
 done
 ```

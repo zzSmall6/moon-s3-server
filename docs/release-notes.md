@@ -1,5 +1,10 @@
 # v0.2.0 preview
 
+Startup configuration now accepts 1–64 credentials with individual enable/
+disable flags, including presigned URL revocation after restart. Legacy
+single-key settings remain supported. All enabled keys share full access;
+bucket/user isolation is not included. See docs/credentials.md for migration.
+
 Object/part uploads now preserve a configurable free disk reserve (64 MiB
 by default). Admission and per-chunk checks reject insufficient or unavailable
 capacity with `507 InsufficientStorage`; metrics expose available space and
