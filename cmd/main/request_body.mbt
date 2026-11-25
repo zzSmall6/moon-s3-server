@@ -76,6 +76,14 @@ async fn RequestBody::receive(
   body : &@io.Reader,
   conn : ResponseConnection,
 ) -> Bool {
+  if self.path is Some(_) &&
+    !check_upload_disk(
+      config,
+      range_number(header(request.headers, "content-length")).unwrap_or(0L),
+      conn,
+    ) {
+    return false
+  }
   let file = match self.path {
     Some(path) =>
       Some(
@@ -152,8 +160,15 @@ async fn RequestBody::receive(
     }
     match file {
       Some(file) => {
+        if !check_upload_disk(config, chunk.length().to_int64(), conn) {
+          return false
+        }
         self.staged_size += chunk.length()
         config.runtime.staged_bytes += chunk.length()
+        config.runtime.disk_writes_pending += chunk.length().to_int64()
+        defer {
+          config.runtime.disk_writes_pending -= chunk.length().to_int64()
+        }
         file.write(chunk)
       }
       None => {

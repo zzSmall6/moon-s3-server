@@ -26,6 +26,8 @@ struct Runtime {
   mut duration_ms : Int64
   mut buffered_bytes : Int32
   mut staged_bytes : Int32
+  mut disk_writes_pending : Int64
+  mut disk_rejections : Int64
   statuses : Map[Int32, Int64]
   connections : Map[Int64, LiveConnection]
 }
@@ -44,6 +46,8 @@ fn Runtime::new() -> Runtime {
     duration_ms: 0L,
     buffered_bytes: 0,
     staged_bytes: 0,
+    disk_writes_pending: 0L,
+    disk_rejections: 0L,
     statuses: Map([]),
     connections: Map([]),
   }

@@ -1,5 +1,10 @@
 # v0.2.0 preview
 
+Object/part uploads now preserve a configurable free disk reserve (64 MiB
+by default). Admission and per-chunk checks reject insufficient or unavailable
+capacity with `507 InsufficientStorage`; metrics expose available space and
+rejection counts. This is best-effort upload protection, not a disk quota.
+
 Object and multipart-part uploads now stream to private disk staging with
 16 KiB per-upload buffer windows. SHA-256, MD5 and requested CRC32 digests
 are calculated incrementally, and verified bodies publish through the existing

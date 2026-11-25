@@ -76,6 +76,7 @@ and run `python3 scripts/console.py`; visit `http://127.0.0.1:9001`.
 | `MOON_S3_MAX_REQUEST_BYTES` | `67108864` | Maximum request body; 1–536870912 bytes |
 | `MOON_S3_MAX_BUFFERED_BYTES` | `134217728` | Shared upload windows and control-body buffers; 16384–536870912 bytes |
 | `MOON_S3_MAX_STAGED_BYTES` | `536870912` | Shared in-flight upload payload on disk; 1–536870912 bytes |
+| `MOON_S3_MIN_FREE_DISK_BYTES` | `67108864` | Free disk reserve for object/part uploads; 0–1099511627776 bytes |
 | `MOON_S3_MAX_CONNECTIONS` | `128` | Maximum simultaneous connections; 1–4096 |
 | `MOON_S3_REQUEST_TIMEOUT_MS` | `30000` | Header-read and request-handling deadlines; 100–3600000 ms |
 
@@ -139,7 +140,7 @@ See [administration](docs/administration.md) for guarantees, limits, and recover
 moon test --target native
 moon info && moon fmt
 bash scripts/smoke.sh
-for suite in auth list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming; do
+for suite in auth list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
   python3 "scripts/${suite}_regression.py"
 done
 ```

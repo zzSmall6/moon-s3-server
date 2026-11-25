@@ -8,6 +8,7 @@
   "max_request_bytes": 67108864,
   "max_buffered_bytes": 134217728,
   "max_staged_bytes": 536870912,
+  "min_free_disk_bytes": 67108864,
   "max_connections": 128,
   "request_timeout_ms": 30000
 }

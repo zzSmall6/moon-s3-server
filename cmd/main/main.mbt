@@ -16,6 +16,7 @@ struct Config {
   max_request_bytes : Int32
   max_buffered_bytes : Int32
   max_staged_bytes : Int32
+  min_free_disk_bytes : Int64
   max_connections : Int32
   request_timeout : Int32
 }
@@ -70,6 +71,11 @@ async fn load_config() -> Config {
       300000,
     ),
     runtime: Runtime::new(),
+    min_free_disk_bytes: match
+      range_number(setting("min_free_disk_bytes", "67108864")) {
+      Some(value) if value <= 1099511627776L => value
+      _ => -1L
+    },
     max_request_bytes: bounded_setting(
       setting("max_request_bytes", "67108864"),
       1,
@@ -1076,7 +1082,7 @@ async fn handle_request(
     conn.send_response(200, "OK", extra_headers={
       "Content-Type": "text/plain; version=0.0.4; charset=utf-8",
     })
-    conn.write(metrics(config.runtime))
+    conn.write(metrics(config.runtime) + disk_metrics(config))
     conn.end_response()
     return
   }
@@ -1417,6 +1423,7 @@ async fn start_server() -> Unit {
     }
   }
   if config.max_request_bytes == 0 ||
+    config.min_free_disk_bytes < 0L ||
     config.max_staged_bytes == 0 ||
     config.max_buffered_bytes == 0 ||
     config.max_connections == 0 ||

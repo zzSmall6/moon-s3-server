@@ -11,7 +11,15 @@ fn parse_settings(text : String) -> Map[String, String] raise {
   }
   let settings : Map[String, String] = Map([])
   for name, value in fields {
-    if [
+    if name == "min_free_disk_bytes" {
+      match value {
+        Number(number, ..) if number >= 0.0 &&
+          number <= 1099511627776.0 &&
+          number == number.to_int64().to_double() =>
+          settings[name] = number.to_int64().to_string()
+        _ => raise Failure("Invalid minimum free disk bytes")
+      }
+    } else if [
         "multipart_ttl_seconds", "webhook_timeout_ms", "shutdown_timeout_ms", "max_request_bytes",
         "max_buffered_bytes", "max_staged_bytes", "max_connections", "request_timeout_ms",
       ].contains(name) {

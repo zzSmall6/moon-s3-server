@@ -20,7 +20,7 @@ file selected, the existing defaults apply. Keys are lowercase versions of the
 environment variable suffix: `root`, `listen`, `access_key`, `secret_key`,
 `cors_origin`, `multipart_ttl_seconds`, `webhook_url`, `webhook_secret`,
 `webhook_timeout_ms`, `shutdown_timeout_ms`, `max_request_bytes`,
-`max_buffered_bytes`, `max_staged_bytes`, `max_connections` and `request_timeout_ms`. The timeout,
+`max_buffered_bytes`, `max_staged_bytes`, `min_free_disk_bytes`, `max_connections` and `request_timeout_ms`. The timeout,
 lifetime and resource-limit settings are JSON integers; all other settings are strings. Unknown keys,
 duplicate keys, invalid types and unreadable files fail startup.
 
@@ -50,6 +50,27 @@ Content-Length requests exceeding the per-request limit receive 413 immediately;
 chunked requests are bounded while reading. Shared-budget exhaustion returns
 503 SlowDown. Both responses close the connection. Limits apply before
 authentication, and capacity is released on completion, error or timeout.
+
+`min_free_disk_bytes` reserves 64 MiB of available filesystem capacity by
+default (0–1 TiB, configured in bytes). PutObject and UploadPart check the
+data-root filesystem before creating a staging file and before each chunk
+write. Known Content-Length must fit above the reserve at admission; chunked
+requests are checked incrementally. Insufficient capacity or an unavailable
+capacity probe returns `507 InsufficientStorage` and closes the connection.
+Existing objects/parts remain intact and staging resources are released.
+Reads and deletions remain usable to reclaim space. The check uses `statvfs`
+capacity available to the service user and accounts conservatively for its
+outstanding chunk writes. Other processes, filesystem allocation granularity
+and metadata can consume space after a check: this is best-effort admission
+protection, not a filesystem quota. Copy, multipart completion, versioning
+metadata and offline backups are outside this upload guard. A value of zero
+removes the reserve but still requires capacity for the next payload write.
+
+Authenticated metrics expose `moon_s3_disk_available_bytes` (fresh observation,
+-1 on probe failure), `moon_s3_disk_min_free_bytes` and
+`moon_s3_upload_disk_rejections_total`. Counters reset on restart.
+Run `python3 scripts/disk_regression.py` for real-probe and controlled
+capacity-failure acceptance without filling the host disk.
 
 `max_staged_bytes` bounds all in-flight upload payloads on disk, including
 completed bodies waiting for the mutation lock. It defaults to 512 MiB and
