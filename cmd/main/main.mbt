@@ -3,6 +3,7 @@ struct Config {
   root : String
   listen : String
   credentials : Map[String, Credential]?
+  bucket_quotas : Map[String, Int64]
   cors_origin : String
   mutation_lock : @async.Mutex
   multipart_ttl : Int64
@@ -48,6 +49,13 @@ async fn load_config() -> Config {
   }
   Config::{
     root: setting("root", "./data"),
+    bucket_quotas: parse_bucket_quotas(
+      @json.parse(
+        setting("bucket_quotas", "{}"),
+        max_nesting_depth=2,
+        reject_duplicate_keys=true,
+      ),
+    ),
     listen: setting("listen", "127.0.0.1:9000"),
     credentials: load_credentials(
       optional("credentials"),
@@ -326,6 +334,13 @@ async fn put_object(
     value => value
   }
   try {
+    let size = match staged {
+      Some(staged) => staged.staged_size.to_int64()
+      None => body.length().to_int64()
+    }
+    if !check_object_quota(config, bucket, key, size, conn) {
+      return
+    }
     prepare_object(config, bucket, key)
     match staged {
       Some(staged) => {
@@ -1139,10 +1154,20 @@ async fn handle_request(
       )
       return
     }
+    config.mutation_lock.acquire()
+    defer config.mutation_lock.release()
+    let text = (metrics(config.runtime) +
+    disk_metrics(config) +
+    quota_metrics(config)) catch {
+      error => {
+        storage_error(config, conn, error)
+        return
+      }
+    }
     conn.send_response(200, "OK", extra_headers={
       "Content-Type": "text/plain; version=0.0.4; charset=utf-8",
     })
-    conn.write(metrics(config.runtime) + disk_metrics(config))
+    conn.write(text)
     conn.end_response()
     return
   }

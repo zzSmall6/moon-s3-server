@@ -6,6 +6,11 @@ the data-directory lock apply equally to native and container deployments.
 
 ## Configuration files
 
+Optional startup [bucket quotas](quotas.md) limit retained payload per bucket.
+Use `bucket_quotas` in the JSON file or `MOON_S3_BUCKET_QUOTAS` to replace the
+whole map through the environment. This is independent of the disk reserve
+and in-flight staging limits described below.
+
 Copy `deploy/config.example.json` to a local file, then start the server:
 
 ```bash
@@ -23,7 +28,7 @@ environment variable suffix: `root`, `listen`, `access_key`, `secret_key`,
 `max_buffered_bytes`, `max_staged_bytes`, `min_free_disk_bytes`, `max_connections` and `request_timeout_ms`, plus the
 structured `credentials` array for [multiple access keys](credentials.md). The timeout,
 lifetime and resource-limit settings are JSON integers; credentials is an array of
-objects and the remaining settings are strings. Unknown keys,
+objects, `bucket_quotas` is an object of byte limits, and the remaining settings are strings. Unknown keys,
 duplicate keys, invalid types and unreadable files fail startup.
 
 Environment variables override matching file values, including empty strings;

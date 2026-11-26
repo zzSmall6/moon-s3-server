@@ -12,6 +12,7 @@ path-style URLs.
 - Optional SigV4 authentication and presigned GET / HEAD / PUT URLs.
 - Multiple access keys with individual disable/rotation through startup configuration.
 - Per-key bucket read/read-write grants; separate administrator access for bucket settings and metrics.
+- Per-bucket retained-payload quotas covering historical versions and unfinished multipart parts.
 - Multipart uploads with resumable parts, pagination, abort, and expiration.
 - Stream object/part uploads to disk with bounded buffers and incremental integrity checks.
 - Range downloads, conditional reads/writes, ETags, Content-Type and custom `x-amz-meta-*` metadata.
@@ -70,6 +71,7 @@ and run `python3 scripts/console.py`; visit `http://127.0.0.1:9001`.
 | `MOON_S3_ACCESS_KEY` | Unset | Enable SigV4 authentication |
 | `MOON_S3_SECRET_KEY` | Unset | Secret paired with the access key |
 | `MOON_S3_CREDENTIALS` | Unset | JSON credential array; alternative to the legacy key pair |
+| `MOON_S3_BUCKET_QUOTAS` | `{}` | JSON object of exact bucket names to retained-payload byte limits |
 | `MOON_S3_CORS_ORIGIN` | `*` | Fallback origin for buckets without CORS rules |
 | `MOON_S3_MULTIPART_TTL_SECONDS` | `604800` | Upload lifetime from creation; 1–31536000 seconds |
 | `MOON_S3_WEBHOOK_URL` | Unset | Enable object-event delivery to an HTTP(S) endpoint |
@@ -145,7 +147,7 @@ See [administration](docs/administration.md) for guarantees, limits, and recover
 moon test --target native
 moon info && moon fmt
 bash scripts/smoke.sh
-for suite in auth credentials permissions list object metadata presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
+for suite in auth credentials permissions quota list object metadata presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
   python3 "scripts/${suite}_regression.py"
 done
 ```

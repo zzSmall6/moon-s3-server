@@ -261,6 +261,9 @@ async fn copy_object(
       value => value
     }
   }
+  if !check_object_quota(config, bucket, key, source.size(), conn) {
+    return
+  }
   prepare_object(config, bucket, key)
   let destination = @fs.create(object_file(config, bucket, key) + ".pending")
   defer destination.close()

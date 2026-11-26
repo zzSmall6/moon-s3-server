@@ -185,6 +185,17 @@ async fn upload_part(
     "/part." +
     number.to_string()
   let temporary = path + ".tmp"
+  if config.bucket_quotas.contains(bucket) {
+    let used = bucket_usage(config, bucket)
+    let old = if @fs.exists(path) { @fs.file_size(path) } else { 0L }
+    let size = match staged {
+      Some(staged) => staged.staged_size.to_int64()
+      None => body.length().to_int64()
+    }
+    if !check_quota(config, bucket, used, used - old + size, conn) {
+      return
+    }
+  }
   let etag = match staged {
     Some(staged) => staged.md5
     None => @core.md5_hex(body.clamped_view())
@@ -382,6 +393,16 @@ async fn complete_upload(
     "-" +
     parts.length().to_string()
   let assembled = directory + "/assembled"
+  if !check_object_quota(
+      config,
+      bucket,
+      upload.key,
+      total,
+      conn,
+      released=upload_payload_bytes(config, bucket, upload.id),
+    ) {
+    return
+  }
   let file = @fs.create(assembled, allow_existing=true)
   defer file.close()
   for (number, _) in parts {

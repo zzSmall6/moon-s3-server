@@ -11,7 +11,10 @@ fn parse_settings(text : String) -> Map[String, String] raise {
   }
   let settings : Map[String, String] = Map([])
   for name, value in fields {
-    if name == "credentials" {
+    if name == "bucket_quotas" {
+      ignore(parse_bucket_quotas(value))
+      settings[name] = value.stringify()
+    } else if name == "credentials" {
       ignore(parse_credentials(value))
       settings[name] = value.stringify()
     } else if name == "min_free_disk_bytes" {

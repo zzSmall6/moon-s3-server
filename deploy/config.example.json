@@ -1,6 +1,7 @@
 {
   "listen": "127.0.0.1:9000",
   "root": "./data",
+  "bucket_quotas": {},
   "cors_origin": "*",
   "multipart_ttl_seconds": 604800,
   "webhook_timeout_ms": 5000,

@@ -1,5 +1,10 @@
 # v0.1.1 preview
 
+The working tree adds optional startup `bucket_quotas`, enforcing retained
+object/version and unfinished-part payload limits for PUT, copy, part upload
+and multipart completion. Quota checks serialize with mutations; metrics
+report quota, used and remaining bytes. See docs/quotas.md for accounting.
+
 The working tree adds custom `x-amz-meta-*` metadata on PUT and multipart
 initiation, returned on GET/HEAD including historical versions. CopyObject
 supports COPY/REPLACE for Content-Type and user metadata. Custom metadata
