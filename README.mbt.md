@@ -4,7 +4,7 @@ A small S3-compatible object storage server written in MoonBit for local
 development, CI and private deployments. Single machine, local disk,
 path-style URLs.
 
-**Version:** `0.1.2` preview; not production-ready.
+**Version:** `0.1.2`; [single-machine delivery acceptance passed](docs/acceptance.md).
 
 ## Features
 
@@ -56,7 +56,7 @@ checksums set to `when_required`; see the [exact API boundary](docs/compatibilit
 - No general IAM/ACL, encryption, STS, AWS streaming signatures or UploadPartCopy.
 - Object keys: 1–1024 UTF-8 bytes. Custom metadata: 2 KiB of ASCII key/value data.
 - Request bodies default to 64 MiB (configurable up to 512 MiB); use multipart for larger objects.
-- Process-crash recovery is tested on Linux; power-loss durability and production load need validation.
+- Process-crash recovery is tested on Linux; power-loss durability and sustained-load guarantees are outside the acceptance scope.
 
 ## Tools and development
 

@@ -1,0 +1,43 @@
+Running presigned SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+Botocore interoperability passed: presigned GET, HEAD and signed Content-Type PUT.
+Presigned regression passed: GET/HEAD/PUT, expiry, tampering, CORS, signed headers and CLI.
+Running copy SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+Copy HTTP regression passed: encoding, metadata, conditions, signatures, disk failure, concurrency and restart.
+Botocore copy passed: encoded sources, metadata replacement, presigned copy and multipart sources.
+Running multipart SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+Multipart HTTP regression passed: lifecycle, recovery, ETags, paging, concurrency, abort and expiry.
+Botocore multipart passed: lifecycle and 100 MiB SHA-256 round trip with cross-part Range.
+Running cors SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+CORS HTTP regression passed: authenticated CRUD, matching, preflight, errors, persistence, concurrency and backup/restore.
+Botocore CORS passed: put/get/delete and browser preflight behavior.
+Running version SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+Version HTTP regression passed: enable/suspend, null versions, historical reads, markers, copying, paging, concurrency, restart and backups.
+Botocore versioning passed: configuration, historical GET/HEAD, markers, pagination, version restore and multipart versions.
+Version recovery passed: staged/published journals, upload cleanup, repeated deletion, orphan cleanup, null replacement, empty content and corrupt-record refusal.
+Running policy SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+Policy HTTP regression passed: private/public reads, history grants, signature rejection, management isolation, atomic switching, restart and backup/restore.
+Botocore policy regression passed: put/get/delete, anonymous public reads and revocation.
+Policy safety regression passed: corrupt policy refusal and explicit no-credential development mode.
+Running metadata SDK
+Finished. moon: no work to do
+Artifacts:
+  Zz04321/moon-s3-server/cmd/main  native  /home/runner/work/moon-s3-server/moon-s3-server/_build/native/debug/build/cmd/main/main.exe
+User metadata passed: PUT/GET/HEAD/Range, copy/replace/clear, legacy and historical versions, multipart resume, presign, limits, backup/restore and corrupt-record refusal.

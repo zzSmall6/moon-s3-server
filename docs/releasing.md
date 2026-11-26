@@ -23,7 +23,7 @@ MoonBit module name remains `Zz04321/moon-s3-server` to preserve imports.
   evidence for the same source commit before publishing the draft.
 
 Workflows run with read-only repository permissions except the optional draft
-publication job. They use no AWS accounts or production credentials. The
+publication job. They use disposable local accounts and test credentials. The
 Copilot environment setup workflow remains separate from these checks.
 
 ## Toolchain
@@ -122,13 +122,14 @@ it with [Dockerfile.release](../deploy/Dockerfile.release) inside the bundle.
 
 ## Delivery checkpoint
 
-See [the current acceptance checkpoint](acceptance.md) for verified release
-evidence and remaining operator sign-off.
+Version 0.1.2 has completed single-machine delivery acceptance on the current
+Linux host. See the [acceptance record](acceptance.md) for source identity,
+CI/client results and the deployment recovery report.
 
-Before publishing: confirm native CI and manual compatibility acceptance on
+For future releases, confirm native CI and manual compatibility acceptance on
 the exact release commit, inspect the manifest/checksums, and retain the
 evidence outside short-lived Actions artifacts. Complete a deployment and
-offline backup/restore drill on the actual delivery machine. The automated
-extracted-bundle restore test is evidence for the tools, not that machine's
-disk or power-loss behavior. Publishing a draft or creating a Git tag is a
+offline backup/restore drill on the selected single-machine acceptance host.
+Hardware power-cut and disk-failure behavior are outside this drill.
+Publishing a draft or creating a Git tag is a
 separate explicit release action.

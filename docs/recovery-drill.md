@@ -1,6 +1,8 @@
 # Deployment and recovery drill
 
-Run the drill on the intended delivery host before cutover. The automated
+Version 0.1.2 passed this drill on the current Linux delivery acceptance host;
+see the [acceptance record](acceptance.md). Repeat it for a new host or storage
+configuration before cutover. The automated
 drill uses a verified Linux x86-64 release, a Docker daemon and disposable
 named volumes. It binds ephemeral ports to loopback and never opens an
 existing deployment or its volumes. It builds the bundle's runtime image;
@@ -58,7 +60,7 @@ source/restored inventories and backup digest. It excludes generated service
 credentials. Recovery time measures the local restore, negative safety checks,
 startup and snapshot verification; it is a small-fixture observation, not an
 RTO commitment. No hardware power cut, disk failure, DNS migration, sustained
-load or production traffic is simulated. Webhook replay is covered by the
+load or existing client traffic is simulated. Webhook replay is covered by the
 event regression suite, not this drill's fixture.
 
 The **Release bundle** workflow runs the same drill and retains its JSON/log
@@ -67,7 +69,7 @@ publication. Retain downloaded evidence beyond Actions' 30-day expiration.
 
 ## Actual service cutover
 
-The automated rehearsal does not choose your production volumes or move
+The automated rehearsal uses disposable volumes and does not move
 client traffic. For an existing Docker deployment:
 
 1. Record the current image ID/version, configuration and source volume name

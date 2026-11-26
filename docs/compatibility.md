@@ -104,7 +104,8 @@ The local TLS regression uses a temporary self-signed certificate and
 
 ## Acceptance results
 
-Verified for the implementation in this change on Linux x86-64:
+Verified for v0.1.2 source `0f1de7b` on Linux x86-64; see the
+[delivery acceptance record](acceptance.md) for reports:
 
 - AWS CLI: upload/download bytes match, Unicode/space/plus keys round trip,
   copy, presigned GET, multipart completion and batch cleanup succeed.
@@ -120,8 +121,6 @@ Verified for the implementation in this change on Linux x86-64:
   deletion, authentication, MD5 mismatch, Quiet, long keys, version deletion,
   marker restoration and persistence after restart.
 
-This acceptance does not establish long-duration load behavior, machine power
-loss durability, complete AWS compatibility, or production readiness. Remaining
-delivery work is to publish versioned release artifacts/checksums, perform a
-deployment and backup/restore drill on the delivery machine, and archive the
-final release's acceptance reports against that exact commit.
+The single-machine delivery acceptance is complete, including deployment and
+backup/restore on the current Linux host. Long-duration load, machine power-loss
+durability and complete AWS compatibility are outside this acceptance scope.

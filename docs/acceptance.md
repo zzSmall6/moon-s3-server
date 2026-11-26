@@ -1,51 +1,43 @@
-# Delivery acceptance checkpoint
+# Delivery acceptance
 
-This is an evidence checkpoint for the v0.1.0 preview, not final production
-sign-off. The release source tested here is
-`738a6c59c1064f9505fdcebb1019c6becba6b618`; later source or toolchain changes
-need their own reports. The deployment harness was developed after that source
-commit; its three file hashes are recorded in the JSON evidence.
+**v0.1.2 passed single-machine delivery acceptance on 2026-11-26.**
+The current Linux x86-64 machine is the delivery acceptance environment.
+The accepted source is `0f1de7b5a99d3233d9c8cc005c7ec9382daac23d`.
 
-## Verified evidence
+## Scope and results
 
-| Gate | Result | Evidence |
+The delivery target is one process on one machine, local-disk storage,
+path-style URLs and the [documented S3 API subset](compatibility.md).
+
+| Check | Result | Evidence |
 | --- | --- | --- |
-| Native CI | Passed | [CI run](https://github.com/zzSmall6/moon-s3-server/actions/runs/44037872194): 35 unit tests, 17 local suites, release extraction validation |
-| External clients | Passed | [Compatibility run](https://github.com/zzSmall6/moon-s3-server/actions/runs/44037935669): AWS CLI, TLS `mc`, 33 Ceph cases, proxy limits, six SDK suites including 100 MiB multipart |
-| Release build | Passed | [Release workflow](https://github.com/zzSmall6/moon-s3-server/actions/runs/44037943265): clean source, packaged binary/CLI, checksum validation, Docker smoke |
-| Deployment recovery rehearsal | Passed on the local Linux host | [Machine-readable report](acceptance/deployment-738a6c5.json): 11 steps, source/restored inventory equality, resumable upload, corruption refusal and original-volume rollback |
+| Native checks | Passed | [CI](https://github.com/zzSmall6/moon-s3-server/actions/runs/45772572694): 40 unit tests, 23 local suites and extracted-bundle validation |
+| External clients | Passed | [Compatibility run](https://github.com/zzSmall6/moon-s3-server/actions/runs/45772593589): AWS CLI, TLS `mc`, 33 Ceph cases, proxy checks and seven SDK suites, including 100 MiB multipart |
+| Release package | Passed | Clean-source `v0.1.2` bundle: checksums, inventory, packaged binary/CLI, signed Unicode transfers and offline backup/restore |
+| Local deployment and recovery | Passed | [11-step report](acceptance/deployment-0f1de7b.json): nonroot Docker deployment, shutdown, backup, restore, multipart resume and rollback |
+| Mooncakes publication | Completed | [Zz04321/moon-s3-server 0.1.2](https://mooncakes.io/docs/Zz04321/moon-s3-server); registry build succeeded |
 
-The deployment rehearsal uses the downloaded artifact from the Release build
-run above, not a locally rebuilt substitute. Its tarball SHA-256 is
-`ac25a5037565f1252d26320c294152e8964e23b040aab79f991bd186251bfbc2`.
-The original source and restored snapshot both contain one bucket, one current
-object, three historical versions, one delete marker and one unfinished
-multipart upload. The harness compares bytes/hashes and Content-Type for two
-versions of a long Unicode key, policy/CORS behavior and multipart part ETag.
-It completes that upload after restore and confirms rollback leaves restored
-writes out of the original volume.
+Client identities and suite results are retained in the
+[compatibility report](acceptance/compatibility-0f1de7b.json) and
+[SDK log](acceptance/sdk-0f1de7b.log).
 
-The observed local restore-to-verified duration was 2.503 seconds for this
-small fixture, including negative restore checks. This is not an RTO promise
-or a benchmark. Kernel, Docker and image IDs, archive/backup SHA-256 digests,
-per-step timings and cleanup status are in the JSON. Generated credentials,
-object contents and backup archives are not committed.
+## Deployment evidence
 
-## Remaining delivery gates
+The deployment test used a locally built, clean-source Linux x86-64 bundle.
+Its SHA-256 is
+`9db74e0e04396608c1ba8b8bfc1753a81a013363dab4c2a1247ad6ba8c715841`.
+The report records the compiler, Docker/runtime image identities, harness
+hashes, backup digest and per-step results.
 
-- Run [the drill](recovery-drill.md) on the actual delivery host with its
-  intended filesystem, capacity, user permissions, Docker/network settings
-  and operational backup destination. Current evidence is a local rehearsal;
-  no production host or client traffic has been changed.
-- Validate the intended TLS endpoint, secrets management, monitoring, event
-  receiver deduplication and restore responsibility with the operator. Confirm
-  the accepted [API boundary](compatibility.md), downtime and recovery point.
-- Choose the final source commit and rerun CI, compatibility and release
-  gates on that exact commit. Download and retain artifacts/reports before
-  Actions retention expires. Include the new workflow's recovery report.
-- Review the preview release notes and publish the versioned GitHub Release
-  with the matching tarball, manifest, checksums and acceptance evidence.
+Source and restored inventories matched: one bucket, one current object,
+three historical versions, one delete marker and one unfinished upload.
+Restored content hashes, Content-Type, CORS and public-read policy matched.
+The saved multipart upload completed after restore. Rollback preserved the
+original volume and its post-snapshot write. Corrupt backups and overwriting
+an existing restore directory were rejected. Temporary containers and volumes
+were cleaned up without errors.
 
-Power loss, real disk failure, distributed durability and sustained production
-load remain outside the evidence. Full S3 compatibility is outside the target
-scope. The preview remains explicitly not production-ready.
+All checks for this delivery scope are complete. Full AWS S3 compatibility,
+hardware power-cut/disk-failure tests and sustained-load guarantees are outside
+the agreed scope. When changing machines, versions or storage, repeat the
+[deployment recovery drill](recovery-drill.md) for that configuration.

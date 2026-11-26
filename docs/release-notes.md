@@ -17,7 +17,7 @@ Stop the server and verify an offline backup before upgrading. Retain matching
 server and admin tools: older versions cannot safely handle every current
 storage layout or metadata record. See [administration](administration.md).
 
-This remains a single-machine preview, not production-ready. Compatibility is
+This version passed [single-machine delivery acceptance](acceptance.md). Compatibility is
 the [documented S3 subset](compatibility.md), without general IAM/ACL,
 encryption, distributed storage or online backup. Quotas count retained payload,
 not physical allocation; inventory scans can slow writes to large buckets.
