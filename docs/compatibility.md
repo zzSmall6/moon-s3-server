@@ -10,7 +10,7 @@ New client versions need a new acceptance run.
 
 | Tool | Version / identity | Accepted workflow |
 | --- | --- | --- |
-| Python SDK | botocore 1.44.0, boto3 1.44.0 | Six SDK suites; 100 MiB multipart SHA-256 round trip |
+| Python SDK | botocore 1.44.0, boto3 1.44.0 | Seven SDK suites; 100 MiB multipart SHA-256 round trip |
 | AWS CLI | 2.22.35, official Linux x86-64 archive | Bucket CRUD, file upload/download, ListObjectsV2, copy, presign, multipart completion, batch delete |
 | MinIO `mc` | RELEASE.2025-04-16T18-13-26Z, commit `b00526b153a31b36767991a4f5ce2cced435ee8e` | TLS: `mb`, `cp --disable-multipart`, `cat`, `stat`, recursive `ls`, server-side copy, individual `rm`, `rb` |
 | Ceph `s3-tests` | commit `5b3987116eca0b4b8fa57d6b10f3db57bab196b6` | 33 original selected cases in `s3tests/functional/test_s3.py` |
@@ -37,10 +37,7 @@ data directory from the user's account is used.
 /usr/bin/python3 scripts/compatibility_regression.py \
   --report /tmp/moon-s3-compat/acceptance.json
 
-for suite in presigned copy multipart cors version policy; do
-  NO_PROXY='*' no_proxy='*' /tmp/moon-s3-compat/python/bin/python \
-    "scripts/${suite}_regression.py" --sdk || break
-done
+python3 scripts/run_regressions.py --sdk
 python3 scripts/delete_regression.py
 ```
 

@@ -32,11 +32,31 @@ objects, `bucket_quotas` is an object of byte limits, and the remaining settings
 duplicate keys, invalid types and unreadable files fail startup.
 
 Environment variables override matching file values, including empty strings;
-omitted file keys use the defaults documented in the README. Relative paths
+omitted file keys use the defaults below. Relative paths
 are resolved against the process working directory. Credentials must both be
 nonempty or both absent. A file can contain credentials, but environment or
 platform secret injection is preferable; restrict file permissions if used.
 Configuration is loaded once at startup; restart to apply changes.
+
+| Environment variable | Default | Purpose |
+| --- | --- | --- |
+| `MOON_S3_CONFIG` | Unset | JSON configuration file |
+| `MOON_S3_ROOT` | `./data` | Data directory |
+| `MOON_S3_LISTEN` | `127.0.0.1:9000` | Listen address |
+| `MOON_S3_ACCESS_KEY` / `MOON_S3_SECRET_KEY` | Unset | Legacy SigV4 credential pair |
+| `MOON_S3_CREDENTIALS` | Unset | JSON credential array |
+| `MOON_S3_BUCKET_QUOTAS` | `{}` | Bucket names to retained-payload byte limits |
+| `MOON_S3_CORS_ORIGIN` | `*` | Fallback origin without bucket CORS rules |
+| `MOON_S3_MULTIPART_TTL_SECONDS` | `604800` | Upload lifetime |
+| `MOON_S3_WEBHOOK_URL` / `MOON_S3_WEBHOOK_SECRET` | Unset | Event receiver and optional HMAC secret |
+| `MOON_S3_WEBHOOK_TIMEOUT_MS` | `5000` | Callback timeout |
+| `MOON_S3_SHUTDOWN_TIMEOUT_MS` | `10000` | Graceful shutdown deadline |
+| `MOON_S3_MAX_REQUEST_BYTES` | `67108864` | Per-request body limit |
+| `MOON_S3_MAX_BUFFERED_BYTES` | `134217728` | Shared upload windows and control-body buffers |
+| `MOON_S3_MAX_STAGED_BYTES` | `536870912` | Shared in-flight upload payload on disk |
+| `MOON_S3_MIN_FREE_DISK_BYTES` | `67108864` | Upload filesystem reserve |
+| `MOON_S3_MAX_CONNECTIONS` | `128` | Concurrent connections |
+| `MOON_S3_REQUEST_TIMEOUT_MS` | `30000` | Header and request deadlines |
 
 `MOON_S3_SHUTDOWN_TIMEOUT_MS` defaults to `10000` and accepts 100–300000 ms.
 `MOON_S3_WEBHOOK_TIMEOUT_MS` accepts 100–60000 ms; multipart TTL accepts

@@ -62,7 +62,7 @@ Ubuntu 22.04 with C build tools and OpenSSL development headers.
 
 Start with a clean checkout of the intended release commit. Update `moon.mod`
 and the release notes before committing a new release version. Package names
-derive from `moon.mod`, currently `v0.1.1`; no release has to be published to
+derive from `moon.mod`, currently `v0.1.2`; no release has to be published to
 build an archive.
 
 ```bash
@@ -87,13 +87,13 @@ output across machines.
 
 ## Install a bundle
 
-Download `moon-s3-server-v0.1.1-linux-x86_64.tar.gz`, `manifest.json` and
+Download `moon-s3-server-v0.1.2-linux-x86_64.tar.gz`, `manifest.json` and
 `SHA256SUMS` from the same release. Then:
 
 ```bash
 sha256sum -c SHA256SUMS
-tar -xzf moon-s3-server-v0.1.1-linux-x86_64.tar.gz
-cd moon-s3-server-v0.1.1-linux-x86_64
+tar -xzf moon-s3-server-v0.1.2-linux-x86_64.tar.gz
+cd moon-s3-server-v0.1.2-linux-x86_64
 MOON_S3_ACCESS_KEY=local-access MOON_S3_SECRET_KEY=replace-this-secret \
   MOON_S3_ROOT=./data MOON_S3_LISTEN=127.0.0.1:9000 bin/moon-s3-server
 ```
@@ -108,7 +108,7 @@ control and use the TLS proxy for remote access; see [deployment](deployment.md)
 The extracted archive has a runtime Dockerfile; it needs no MoonBit compiler:
 
 ```bash
-docker build -t moon-s3-server:v0.1.1 .
+docker build -t moon-s3-server:v0.1.2 .
 export MOON_S3_ACCESS_KEY=local-access
 export MOON_S3_SECRET_KEY=replace-this-secret
 docker compose up -d

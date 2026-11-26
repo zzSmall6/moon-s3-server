@@ -1,54 +1,30 @@
-# v0.1.1 preview
+# v0.1.2 preview
 
-The working tree adds optional startup `bucket_quotas`, enforcing retained
-object/version and unfinished-part payload limits for PUT, copy, part upload
-and multipart completion. Quota checks serialize with mutations; metrics
-report quota, used and remaining bytes. See docs/quotas.md for accounting.
+## Changes since 0.1.1
 
-The working tree adds custom `x-amz-meta-*` metadata on PUT and multipart
-initiation, returned on GET/HEAD including historical versions. CopyObject
-supports COPY/REPLACE for Content-Type and user metadata. Custom metadata
-persists through journal recovery, version restore and offline backup/restore.
-See docs/metadata.md for the 2 KiB ASCII profile and storage upgrade notes.
+- Custom `x-amz-meta-*` metadata on PUT and multipart initiation, returned by
+  GET/HEAD/Range and historical reads. CopyObject supports COPY/REPLACE.
+  Metadata survives recovery and backup/restore; the limit is 2 KiB of ASCII
+  key/value data. See [metadata](metadata.md).
+- Optional per-bucket retained-payload quotas cover objects, historical
+  versions and unfinished multipart parts. Concurrent writes check projected
+  usage before publication; excess writes return `403 QuotaExceeded`.
+  Metrics expose usage and remaining capacity. See [quotas](quotas.md).
 
-Startup configuration now accepts 1–64 credentials with individual enable/
-disable flags, including presigned URL revocation after restart. Legacy
-single-key settings remain supported. Optional per-key `permissions` map exact
-bucket names to `read` or `read-write`; scoped keys cannot manage buckets or
-metrics. Copy verifies both source read and destination write access. Omitting
-permissions preserves administrator access. See docs/credentials.md for migration.
+## Upgrade and limits
 
-Object/part uploads now preserve a configurable free disk reserve (64 MiB
-by default). Admission and per-chunk checks reject insufficient or unavailable
-capacity with `507 InsufficientStorage`; metrics expose available space and
-rejection counts. This is best-effort upload protection, not a disk quota.
+Stop the server and verify an offline backup before upgrading. Retain matching
+server and admin tools: older versions cannot safely handle every current
+storage layout or metadata record. See [administration](administration.md).
 
-Object and multipart-part uploads now stream to private disk staging with
-16 KiB per-upload buffer windows. SHA-256, MD5 and requested CRC32 digests
-are calculated incrementally, and verified bodies publish through the existing
-transaction/version machinery. Interrupted uploads are cleaned up on error,
-timeout and startup recovery. Shared disk staging is bounded by
-`MOON_S3_MAX_STAGED_BYTES` (512 MiB by default); the memory budget can now be
-smaller than individual upload requests. Control request bodies still buffer
-in memory. Default request size remains 64 MiB, configurable up to 512 MiB.
+This remains a single-machine preview, not production-ready. Compatibility is
+the [documented S3 subset](compatibility.md), without general IAM/ACL,
+encryption, distributed storage or online backup. Quotas count retained payload,
+not physical allocation; inventory scans can slow writes to large buckets.
+Allow disk space for staging, transaction copies, history and backups.
 
-A single-machine S3 subset implemented in MoonBit, with local disk storage,
-SigV4 and presigned requests, multipart uploads, versioning, copy, batch
-deletion, CORS, restricted public-read policies, durable event webhooks,
-offline backup/restore, management CLI and an authenticated Web console.
+## Previous version
 
-The Linux x86-64 bundle includes the native server, Python management tools,
-console assets, deployment examples, documentation and a source/build manifest.
-Download the tarball, manifest and SHA256SUMS together; verify checksums before
-extraction. See docs/releasing.md inside the archive for installation.
-
-Compatibility is limited to the documented S3 subset and pinned clients;
-see docs/compatibility.md. This preview is not production-ready. No general
-IAM/ACL, encryption, distributed storage, AWS streaming signatures or online
-backup support. Object/part uploads stage on disk; control bodies buffer
-within configured memory limits. Keep data-root and bucket directories on
-one filesystem and allow space for staging alongside committed storage.
-
-Upgrade warning: long keys use a hash-based storage mapping. Older server and
-admin versions cannot safely operate on that layout. Stop the service, take
-and verify an offline backup with this version, and retain it before upgrading.
+`0.1.1` introduced multiple credentials and bucket permissions, streaming
+uploads with bounded staging, and a configurable free-disk reserve. These
+features remain available in `0.1.2`.
