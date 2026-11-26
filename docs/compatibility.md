@@ -69,8 +69,8 @@ This configuration provides no evidence of IAM compatibility.
 | Authentication | SigV4 header and presigned GET/HEAD/PUT | Path-style; no SigV2, STS, AWS chunk signatures or signed trailers |
 | Buckets | Create, list, head, delete; `GET ?location` | One local region: location is empty (`us-east-1`); no region provisioning or redirects |
 | Listing | ListObjectsV2, prefix, delimiter, pagination, start-after, URL encoding, optional owner | `fetch-owner=true` returns the service owner `moonbit`; V1 marker pagination is outside the contract |
-| Objects | PUT/GET/HEAD/DELETE, ETag, Content-Type, one Range, read/write conditions | No arbitrary metadata, tags, ACL, storage classes, encryption or response override parameters |
-| Copy | CopyObject, source conditions, COPY/REPLACE Content-Type, versioned source | No UploadPartCopy; source limit 5 GiB; no tags/metadata propagation |
+| Objects | PUT/GET/HEAD/DELETE, ETag, Content-Type, custom metadata, one Range, read/write conditions | Metadata limited to 2 KiB of printable ASCII key/value data; no tags, ACL, storage classes, encryption or response overrides |
+| Copy | CopyObject, source conditions, COPY/REPLACE Content-Type and custom metadata, versioned source | No UploadPartCopy; source limit 5 GiB; no tags |
 | Multipart | Initiate, upload/list parts, list uploads, complete, abort, startup recovery, expiration | 1–10000 parts; 5 MiB minimum except last; parts must fit request and shared staging limits |
 | Batch delete | `POST /bucket?delete`, 1–1000 keys, optional VersionId, Quiet, per-key errors | At most 1 MiB XML; no conditional object fields, MFA, object-lock retention or batch-wide conditions |
 | Integrity | Content-MD5 and request CRC32 verification | Optional read checksum mode accepted without response checksum fields; other algorithms/trailers rejected |
@@ -93,7 +93,8 @@ For SDKs set `signature_version="s3v4"`,
 `request_checksum_calculation="when_required"` and
 `response_checksum_validation="when_required"`. AWS CLI acceptance uses the
 equivalent checksum environment variables and a private path-style config.
-Do not supply encryption, metadata, storage-class or optional checksum flags.
+Do not supply encryption, storage-class or optional checksum flags. Custom
+metadata follows the [documented limits](metadata.md).
 
 `mc` uses streaming signatures when uploading over HTTP. Use HTTPS via
 [the Nginx example](deployment.md#tls-reverse-proxy), file inputs with known

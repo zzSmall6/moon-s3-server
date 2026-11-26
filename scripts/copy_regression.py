@@ -134,7 +134,7 @@ def main():
                     error(copy(source=source), 400, "InvalidArgument")
                 error(copy(headers={"x-amz-metadata-directive": "INVALID"}), 400, "InvalidArgument")
                 error(copy(payload=b"unexpected"), 400, "InvalidRequest")
-                for option in ["x-amz-copy-source-range", "x-amz-meta-name", "x-amz-tagging", "x-amz-server-side-encryption", "x-amz-acl"]:
+                for option in ["x-amz-copy-source-range", "x-amz-tagging", "x-amz-server-side-encryption", "x-amz-acl"]:
                     error(copy(headers={option: "unsupported"}), 501, "NotImplemented")
                 error(request("PUT", destination_path, headers={"x-amz-copy-source": source_path}, authenticated=False), 403, "AccessDenied")
                 unsigned = sign("PUT", destination_path, host)

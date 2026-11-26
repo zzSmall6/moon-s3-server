@@ -111,8 +111,9 @@ before this size check; also configure a raw header-size limit at the reverse
 proxy. Upload part sizes must fit the configured request limit. Use
 `python3 scripts/safety_regression.py` to verify rejection and cleanup behavior.
 
-Unsupported S3 subresources (including tagging/ACL APIs), encryption, custom
-metadata and checksum algorithms other than CRC32 receive 501 without changing objects.
+Unsupported S3 subresources (including tagging/ACL APIs), encryption and
+checksum algorithms other than CRC32 receive 501 without changing objects.
+Custom metadata follows the [2 KiB ASCII profile](metadata.md).
 Unknown query parameters are rejected; `x-id` is accepted for SDK operation IDs.
 Content-MD5 is validated: malformed digests receive InvalidDigest and mismatches
 receive BadDigest. Object keys and query strings require valid percent encoding

@@ -1,5 +1,11 @@
 # v0.1.1 preview
 
+The working tree adds custom `x-amz-meta-*` metadata on PUT and multipart
+initiation, returned on GET/HEAD including historical versions. CopyObject
+supports COPY/REPLACE for Content-Type and user metadata. Custom metadata
+persists through journal recovery, version restore and offline backup/restore.
+See docs/metadata.md for the 2 KiB ASCII profile and storage upgrade notes.
+
 Startup configuration now accepts 1–64 credentials with individual enable/
 disable flags, including presigned URL revocation after restart. Legacy
 single-key settings remain supported. Optional per-key `permissions` map exact

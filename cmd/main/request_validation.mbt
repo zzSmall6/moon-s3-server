@@ -100,7 +100,6 @@ fn unsupported_headers(request : @http.Request) -> Bool {
     ) ||
     name == "x-amz-acl" ||
     name.has_prefix("x-amz-grant-") ||
-    name.has_prefix("x-amz-meta-") ||
     name.has_prefix("x-amz-object-lock-") ||
     name == "x-amz-tagging" ||
     name == "x-amz-tagging-directive" ||

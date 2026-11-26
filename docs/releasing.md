@@ -7,12 +7,12 @@ MoonBit module name remains `Zz04321/moon-s3-server` to preserve imports.
 ## Automation
 
 - **CI** runs on pushes to `main`, pull requests and manual dispatch. It checks
-  formatting/interfaces, native compilation, unit tests, smoke, all 21 local
+  formatting/interfaces, native compilation, unit tests, smoke, all 22 local
   regression suites and the extracted release bundle. Reports and the test
   bundle are retained as Actions artifacts for 14 days.
 - **External compatibility** runs manually. It installs locked clients,
   runs AWS CLI, TLS `mc`, the 33 selected unmodified Ceph cases and proxy
-  limits, then all six SDK suites. Logs/JSON results are retained for 30 days.
+  limits, then all seven SDK suites. Logs/JSON results are retained for 30 days.
 - **Release bundle** runs manually. It validates local regressions, packages
   and exercises the native release binary, and checks Docker deployment.
   It also runs the [deployment recovery drill](recovery-drill.md); JSON/log

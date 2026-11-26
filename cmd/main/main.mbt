@@ -221,7 +221,9 @@ fn authorize(
       let pairs : Array[(String, String)] = []
       for item in auth.signed_headers.split(";") {
         let name = item.to_owned()
-        pairs.push((name, header(request.headers, name)))
+        if request.headers.contains(@http.CaseInsensitiveString(name)) {
+          pairs.push((name, header(request.headers, name)))
+        }
       }
       let payload_hash = match header(request.headers, "x-amz-content-sha256") {
         "" => actual_hash
@@ -341,7 +343,16 @@ async fn put_object(
           sync=Full,
         )
     }
-    conn.set_version(commit_object(config, bucket, key, etag, content_type))
+    conn.set_version(
+      commit_object(
+        config,
+        bucket,
+        key,
+        etag,
+        content_type,
+        user_metadata=request_user_metadata(request).unwrap(),
+      ),
+    )
   } catch {
     error => {
       storage_error(config, conn, error)
@@ -422,6 +433,9 @@ async fn get_object(
   let file = snapshot.file
   let etag = snapshot.etag
   let content_type = snapshot.content_type
+  for name, value in user_metadata_values(snapshot.user_metadata) {
+    conn.operation_headers[@http.CaseInsensitiveString("x-amz-meta-" + name)] = value
+  }
   defer file.close()
   let modified = snapshot.modified
   if !check_read_precondition(config, request, etag, modified, conn) {
@@ -1018,6 +1032,29 @@ async fn handle_request(
       403,
       "AccessDenied",
       "The access key is not permitted to perform this operation.",
+      config.cors_origin,
+    )
+    return
+  }
+  let metadata = request_user_metadata(request)
+  if metadata is Some(value) &&
+    !value.is_empty() &&
+    !user_metadata_operation(request, raw_path, params) {
+    send_error(
+      conn,
+      400,
+      "InvalidRequest",
+      "User metadata is only supported on object upload, copy and multipart initiation.",
+      config.cors_origin,
+    )
+    return
+  }
+  if metadata is None {
+    send_error(
+      conn,
+      400,
+      "InvalidArgument",
+      "User metadata requires lowercase token names and printable ASCII values, totaling at most 2048 bytes.",
       config.cors_origin,
     )
     return

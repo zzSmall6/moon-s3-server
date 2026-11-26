@@ -58,7 +58,11 @@ fn copy_source_authorized(config : Config, request : @http.Request) -> Bool {
   let names = signed.split(";").to_array()
   for name, _ in request.headers {
     let name = name.to_string().to_lower()
-    if (name.has_prefix("x-amz-copy-") || name == "x-amz-metadata-directive") &&
+    if (
+        name.has_prefix("x-amz-copy-") ||
+        name.has_prefix("x-amz-meta-") ||
+        name == "x-amz-metadata-directive"
+      ) &&
       !names.any(signed => signed == name) {
       return false
     }
@@ -125,8 +129,7 @@ async fn copy_object(
   }
   for name, _ in request.headers {
     let name = name.to_string().to_lower()
-    if name.has_prefix("x-amz-meta-") ||
-      name == "x-amz-copy-source-range" ||
+    if name == "x-amz-copy-source-range" ||
       name == "x-amz-tagging" ||
       name == "x-amz-tagging-directive" ||
       name == "x-amz-acl" ||
@@ -276,6 +279,11 @@ async fn copy_object(
       key,
       etag,
       content_type,
+      user_metadata=if directive == "COPY" {
+        selected.user_metadata
+      } else {
+        request_user_metadata(request).unwrap()
+      },
       event_name="ObjectCreated:Copy",
     ),
   )

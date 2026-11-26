@@ -6,6 +6,7 @@ struct ObjectVersion {
   marker : Bool
   etag : String
   content_type : String
+  user_metadata : String
   modified : Int64
   size : Int64
 }
@@ -97,13 +98,16 @@ async fn object_versions(
         }
         if ![
             "version-id", "order", "delete-marker", "etag", "content-type", "modified",
+            "user-metadata",
           ].contains(name) ||
           fields.contains(name) {
           raise Failure("Invalid or duplicate version field: \{record}")
         }
         fields[name] = true
       }
-      if fields.length() != 6 {
+      if fields.length() -
+        (if fields.contains("user-metadata") { 1 } else { 0 }) !=
+        6 {
         raise Failure("Incomplete version record: \{record}")
       }
       let id = meta_value(text, "version-id")
@@ -119,9 +123,15 @@ async fn object_versions(
       let path = base + "/" + storage + "/content"
       let etag = meta_value(text, "etag")
       let content_type = meta_value(text, "content-type")
+      let user_metadata = stored_user_metadata(record)
       if (
           marker == "true" &&
-          (@fs.exists(path) || !etag.is_empty() || !content_type.is_empty())
+          (
+            @fs.exists(path) ||
+            !etag.is_empty() ||
+            !content_type.is_empty() ||
+            !user_metadata.is_empty()
+          )
         ) ||
         (marker == "false" && !valid_version_etag(etag)) {
         raise Failure("Invalid version content metadata: \{record}")
@@ -138,6 +148,7 @@ async fn object_versions(
         marker: marker == "true",
         etag,
         content_type,
+        user_metadata,
         size,
       })
     }
@@ -157,6 +168,7 @@ async fn legacy_version(
     return None
   }
   let (etag, content_type) = object_meta(config, bucket, key)
+  let user_metadata = stored_user_metadata(meta_file(config, bucket, key))
   Some({
     id: "null",
     storage: "",
@@ -164,6 +176,7 @@ async fn legacy_version(
     marker: false,
     etag,
     content_type,
+    user_metadata,
     modified: file_modified(path),
     size: @fs.file_size(path),
   })
@@ -244,7 +257,8 @@ fn version_record(version : ObjectVersion) -> String {
   version.content_type +
   "\nmodified=" +
   version.modified.to_string() +
-  "\n"
+  "\n" +
+  user_metadata_record(version.user_metadata)
 }
 
 ///|
@@ -301,7 +315,8 @@ async fn refresh_current_version(
       version.modified.to_string() +
       "\nversion-id=" +
       version.id +
-      "\n",
+      "\n" +
+      user_metadata_record(version.user_metadata),
       sync=Full,
     )
     @fs.rename(content + ".pending", content, replace=true)
@@ -350,6 +365,7 @@ async fn commit_version(
   key : String,
   etag : String,
   content_type : String,
+  user_metadata~ : String = "",
   marker~ : Bool = false,
   upload_id? : String,
   event_name~ : String = "ObjectCreated:Put",
@@ -390,6 +406,7 @@ async fn commit_version(
     marker,
     etag,
     content_type,
+    user_metadata,
     modified,
     size: 0L,
   }

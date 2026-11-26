@@ -180,6 +180,7 @@ async fn commit_object(
   key : String,
   etag : String,
   content_type : String,
+  user_metadata~ : String = "",
   upload_id? : String,
   event_name~ : String = "ObjectCreated:Put",
 ) -> String? {
@@ -191,6 +192,7 @@ async fn commit_object(
         key,
         etag,
         content_type,
+        user_metadata~,
         upload_id?,
         event_name~,
       ),
@@ -198,7 +200,12 @@ async fn commit_object(
   }
   @fs.write_file(
     meta_file(config, bucket, key) + ".pending",
-    "etag=" + etag + "\ncontent-type=" + content_type + "\n",
+    "etag=" +
+    etag +
+    "\ncontent-type=" +
+    content_type +
+    "\n" +
+    user_metadata_record(user_metadata),
     sync=Full,
   )
   let journal = match upload_id {
@@ -263,6 +270,19 @@ async fn recover_bucket(config : Config, bucket : String) -> Unit {
   }
   for path in abandoned {
     @fs.remove(path, allow_missing=true)
+  }
+  for entry in @fs.readdir(directory, include_hidden=false) {
+    if entry.has_suffix(".meta") {
+      ignore(stored_user_metadata(directory + "/" + entry))
+    }
+  }
+  let uploads = bucket_dir(config, bucket) + "/.uploads"
+  if @fs.exists(uploads) {
+    for id in @fs.readdir(uploads, include_hidden=false) {
+      if valid_upload_id(id) && @fs.exists(uploads + "/" + id + "/manifest") {
+        ignore(stored_user_metadata(uploads + "/" + id + "/manifest"))
+      }
+    }
   }
   if !abandoned.is_empty() {
     sync_directory(directory)

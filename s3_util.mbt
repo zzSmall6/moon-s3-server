@@ -359,13 +359,14 @@ pub fn verify_sigv4(
         for character in name.to_owned().to_array() {
           if !((character >= 'a' && character <= 'z') ||
             (character >= '0' && character <= '9') ||
-            character == '-') {
+            "!#$%&'*+-.^_`|~".contains(character.to_string())) {
             return false
           }
         }
         let mut present = false
         for (header_name, value) in signed_header_pairs {
-          if header_name[:] == name && !value.trim().is_empty() {
+          if header_name[:] == name &&
+            (!value.trim().is_empty() || name.has_prefix("x-amz-meta-")) {
             present = true
           }
         }

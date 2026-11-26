@@ -76,12 +76,13 @@ fn authorize_presigned(
     for character in name.to_owned().to_array() {
       if !((character >= 'a' && character <= 'z') ||
         (character >= '0' && character <= '9') ||
-        character == '-') {
+        "!#$%&'*+-.^_`|~".contains(character.to_string())) {
         return false
       }
     }
     let value = header(request.headers, name.to_owned())
-    if value.trim().is_empty() {
+    if !request.headers.contains(@http.CaseInsensitiveString(name.to_owned())) ||
+      (value.trim().is_empty() && !name.has_prefix("x-amz-meta-")) {
       return false
     }
     pairs.push((name.to_owned(), value))

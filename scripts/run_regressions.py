@@ -7,8 +7,8 @@ import sys
 
 
 PROJECT = pathlib.Path(__file__).resolve().parents[1]
-SUITES = "auth credentials permissions list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk".split()
-SDK_SUITES = "presigned copy multipart cors version policy".split()
+SUITES = "auth credentials permissions list object metadata presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk".split()
+SDK_SUITES = "presigned copy multipart cors version policy metadata".split()
 
 
 def main():

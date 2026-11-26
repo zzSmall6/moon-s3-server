@@ -18,6 +18,10 @@ does not repair or delete data; it may create the `.lock` file if absent.
 
 Checks validate the current storage layout, object/metadata pairs, encoded
 keys, ETag syntax, bucket creation records, bucket CORS rules, and unfinished upload manifests.
+Custom `x-amz-meta-*` values are validated and preserved in current metadata,
+historical version records and multipart initiation manifests. Use the matching
+admin version for the optional `user-metadata` storage field; older tools
+reject these extended records. See [custom metadata](metadata.md).
 Keys over 117 UTF-8 bytes use SHA-256 filenames with original UTF-8 mappings
 under each bucket's `.keys` directory; shorter keys retain their legacy hex
 filenames. Checks and backups validate and preserve these mappings. Keys support

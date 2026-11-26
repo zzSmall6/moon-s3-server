@@ -3,6 +3,7 @@ struct ObjectSnapshot {
   file : @fs.File
   etag : String
   content_type : String
+  user_metadata : String
   modified : Int64
 }
 
@@ -101,6 +102,7 @@ async fn open_versioned_read(
     file,
     etag: version.etag,
     content_type: version.content_type,
+    user_metadata: version.user_metadata,
     modified: version.modified,
   })
 }

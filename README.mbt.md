@@ -14,8 +14,8 @@ path-style URLs.
 - Per-key bucket read/read-write grants; separate administrator access for bucket settings and metrics.
 - Multipart uploads with resumable parts, pagination, abort, and expiration.
 - Stream object/part uploads to disk with bounded buffers and incremental integrity checks.
-- Range downloads, conditional reads/writes, ETags, and Content-Type metadata.
-- Server-side CopyObject across buckets, with source conditions and COPY / REPLACE Content-Type.
+- Range downloads, conditional reads/writes, ETags, Content-Type and custom `x-amz-meta-*` metadata.
+- Server-side CopyObject across buckets, with source conditions and COPY / REPLACE metadata.
 - Write/delete transaction recovery, consistent concurrent reads, and a data directory lock.
 - Persistent bucket CORS rules with preflight matching; a `GET /healthz` endpoint.
 - Offline storage checks, SHA-256 backups, and verified restores with multipart resume.
@@ -120,8 +120,9 @@ See [event webhooks](docs/events.md) for payloads, retries, and receiver dedupli
   encryption, or online backups yet. Only single-range downloads are supported.
 - No STS tokens, AWS streaming signatures, checksums beyond MD5/CRC32, UploadPartCopy,
   or delimiter grouping for multipart upload listings.
-- CopyObject supports sources up to 5 GiB and Content-Type metadata only;
-  tags, ACLs, and custom metadata are unsupported.
+- CopyObject supports sources up to 5 GiB, Content-Type and custom metadata;
+  tags and ACLs are unsupported. Custom metadata uses printable ASCII values,
+  with a 2 KiB total key/value limit; see [metadata](docs/metadata.md).
 - Unsupported subresources, encryption and extra checksum options are rejected.
   Content-MD5 and request CRC32 are verified; Content-Type is limited to 1024 bytes.
 
@@ -144,7 +145,7 @@ See [administration](docs/administration.md) for guarantees, limits, and recover
 moon test --target native
 moon info && moon fmt
 bash scripts/smoke.sh
-for suite in auth credentials permissions list object presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
+for suite in auth credentials permissions list object metadata presigned multipart storage copy admin cors version policy event cli console operations safety delete streaming disk; do
   python3 "scripts/${suite}_regression.py"
 done
 ```

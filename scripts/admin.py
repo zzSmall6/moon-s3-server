@@ -116,9 +116,18 @@ def fields(path, expected, optional=()):
         if not line:
             continue
         name, separator, value = line.partition("=")
-        require(separator and name in (*expected, *optional) and name not in values, f"Invalid metadata: {path.name}")
+        require(separator and name in (*expected, *optional, "user-metadata") and name not in values, f"Invalid metadata: {path.name}")
         values[name] = value
     require(set(expected) <= set(values), f"Missing metadata fields: {path.name}")
+    if "user-metadata" in values:
+        metadata = json.loads(values["user-metadata"], object_pairs_hook=unique_json)
+        require(isinstance(metadata, dict), "Invalid user metadata record")
+        size = 0
+        for name, value in metadata.items():
+            require(re.fullmatch(r"[a-z0-9!#$%&'*+.^_`|~-]{1,128}", name) and isinstance(value, str)
+                    and all(32 <= ord(character) <= 126 for character in value), "Invalid user metadata field")
+            size += len(name.encode()) + len(value.encode())
+        require(size <= 2048, "User metadata exceeds 2048 bytes")
     return values
 
 
@@ -373,7 +382,7 @@ def inspect_storage(root, entries):
             require(values["delete-marker"] in ("true", "false"), f"Invalid delete marker: {version_path}")
             content = version_path + "/content"
             if values["delete-marker"] == "true":
-                require(content not in entries and not values["etag"] and not values["content-type"], f"Invalid delete marker data: {version_path}")
+                require(content not in entries and not values["etag"] and not values["content-type"] and not values.get("user-metadata"), f"Invalid delete marker data: {version_path}")
                 marker_count += 1
             else:
                 require(entries.get(content, {}).get("kind") == "file", f"Missing version content: {version_path}")
@@ -403,7 +412,9 @@ def inspect_storage(root, entries):
                 require(latest["version-id"] == "null" and latest["order"] == "0"
                         and (root / current).stat().st_mtime_ns // 1_000_000_000 == int(latest["modified"]),
                         f"Unexpected legacy cache for version history: {name}")
-            require(all(values[field] == latest[field] for field in values), f"Current version metadata mismatch: {name}")
+            require(all(values[field] == latest[field] for field in values if field != "user-metadata")
+                    and json.loads(values.get("user-metadata", "{}")) == json.loads(latest.get("user-metadata", "{}")),
+                    f"Current version metadata mismatch: {name}")
             require(digest_file(root / current) == digest_file(root / content), f"Current version content mismatch: {name}")
     for name in entries:
         parts = safe_path(name).parts

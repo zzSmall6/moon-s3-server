@@ -3,6 +3,7 @@ struct MultipartUpload {
   id : String
   key : String
   content_type : String
+  user_metadata : String
   initiated : Int64
 }
 
@@ -48,7 +49,15 @@ async fn load_upload(
     Some(initiated) => initiated
     None => return None
   }
-  Some({ id, key, initiated, content_type: meta_value(text, "content-type"), })
+  Some({
+    id,
+    key,
+    initiated,
+    content_type: meta_value(text, "content-type"),
+    user_metadata: stored_user_metadata(
+      upload_dir(config, bucket, id) + "/manifest",
+    ),
+  })
 }
 
 ///|
@@ -143,7 +152,8 @@ async fn initiate_upload(
     content_type +
     "\ninitiated=" +
     (@env.now() / 1000UL).to_string() +
-    "\n",
+    "\n" +
+    user_metadata_record(request_user_metadata(request).unwrap()),
     sync=Full,
   )
   send_xml(
@@ -396,6 +406,7 @@ async fn complete_upload(
     upload.key,
     etag,
     upload.content_type,
+    user_metadata=upload.user_metadata,
     upload_id=upload.id,
     event_name="ObjectCreated:CompleteMultipartUpload",
   )

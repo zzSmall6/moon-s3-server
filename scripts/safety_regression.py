@@ -71,7 +71,7 @@ def storage_safety(directory):
         for headers in [{"x-amz-server-side-encryption": "AES256"},
                         {"x-amz-server-side-encryption": "aws:kms"},
                         {"x-amz-server-side-encryption-customer-algorithm": "AES256"},
-                        {"x-amz-acl": "public-read"}, {"x-amz-meta-owner": "demo"},
+                        {"x-amz-acl": "public-read"},
                         {"x-amz-checksum-sha256": "invalid"}, {"x-amz-tagging": "a=b"}]:
             error(call("PUT", path, b"replacement", headers), 501, "NotImplemented")
             assert call("GET", path)[2] == original
