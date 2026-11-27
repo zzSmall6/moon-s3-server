@@ -104,7 +104,7 @@ The local TLS regression uses a temporary self-signed certificate and
 
 ## Acceptance results
 
-Verified for v0.1.2 source `0f1de7b` on Linux x86-64; see the
+Verified for v0.1.2 source `7e90110` with `moonc v1.0.0-rc1` on Linux x86-64; see the
 [delivery acceptance record](acceptance.md) for reports:
 
 - AWS CLI: upload/download bytes match, Unicode/space/plus keys round trip,

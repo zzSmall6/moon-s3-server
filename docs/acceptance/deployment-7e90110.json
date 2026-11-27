@@ -1,0 +1,160 @@
+{
+  "schema": "moon-s3-deployment-drill-v1",
+  "status": "passed",
+  "started_at": "2026-11-27T07:44:37.462101+00:00",
+  "host": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "kernel": "7.0.0-43-generic"
+  },
+  "steps": [
+    {
+      "name": "verify_release",
+      "status": "passed",
+      "seconds": 0.18
+    },
+    {
+      "name": "build_runtime_image",
+      "status": "passed",
+      "seconds": 0.489
+    },
+    {
+      "name": "deploy_and_populate",
+      "status": "passed",
+      "seconds": 0.663
+    },
+    {
+      "name": "reject_online_backup",
+      "status": "passed",
+      "seconds": 0.839
+    },
+    {
+      "name": "stop_and_offline_backup",
+      "status": "passed",
+      "seconds": 1.934
+    },
+    {
+      "name": "write_after_snapshot",
+      "status": "passed",
+      "seconds": 0.429
+    },
+    {
+      "name": "restore_into_new_volume",
+      "status": "passed",
+      "seconds": 1.313
+    },
+    {
+      "name": "reject_overwrite_and_corrupt_backup",
+      "status": "passed",
+      "seconds": 1.603
+    },
+    {
+      "name": "validate_restored_service",
+      "status": "passed",
+      "seconds": 0.247
+    },
+    {
+      "name": "resume_multipart_and_write",
+      "status": "passed",
+      "seconds": 0.838
+    },
+    {
+      "name": "rollback_to_original_volume",
+      "status": "passed",
+      "seconds": 0.597
+    }
+  ],
+  "harness_sha256": {
+    "deployment_drill.py": "87a6519aa017b62a3e74b9abf45245a86ea792c8fb832ac1d29454e2c5c2717d",
+    "release_bundle.py": "b395fabdfc159bfc238b9c40e22adf96775bb4f91b361303da158bf0b76eed79",
+    "s3_client.py": "5b61c479d43e6106a4b51d3e7f1e7e3c53bed4dba14c95a0108cff17e199a17b"
+  },
+  "release": {
+    "version": "v0.1.2",
+    "revision": "7e90110899e8de47c332f1ffcb28ca425d5cacf7",
+    "dirty": false,
+    "target": "linux-x86_64",
+    "toolchain": "moon 0.1.20261126 (ccd306a 2026-11-26) ~/work/_temp/moon-s3-toolchain/bin/moon\nmoonc v1.0.0-rc1+3c0520448 (2026-11-26) ~/work/_temp/moon-s3-toolchain/bin/moonc\nmoonrun 0.1.20261126 (ccd306a 2026-11-26) ~/work/_temp/moon-s3-toolchain/bin/moonrun",
+    "archive_sha256": "cf16a300d4aba7bf1d6b624d222ec1913d40d7866e1931467b7c196bf5673e8d"
+  },
+  "docker": {
+    "Platform": {
+      "Name": ""
+    },
+    "Version": "29.1.3",
+    "ApiVersion": "1.52",
+    "MinAPIVersion": "1.44",
+    "Os": "linux",
+    "Arch": "amd64",
+    "Components": [
+      {
+        "Name": "Engine",
+        "Version": "29.1.3",
+        "Details": {
+          "ApiVersion": "1.52",
+          "Arch": "amd64",
+          "BuildTime": "Wed Apr 29 16:41:06 2026",
+          "Experimental": "false",
+          "GitCommit": "29.1.3-0ubuntu3~24.04.2",
+          "GoVersion": "go1.24.4",
+          "KernelVersion": "7.0.0-43-generic",
+          "MinAPIVersion": "1.44",
+          "Os": "linux"
+        }
+      },
+      {
+        "Name": "containerd",
+        "Version": "2.2.1",
+        "Details": {
+          "GitCommit": ""
+        }
+      },
+      {
+        "Name": "runc",
+        "Version": "1.3.3-0ubuntu1~24.04.3",
+        "Details": {
+          "GitCommit": ""
+        }
+      },
+      {
+        "Name": "docker-init",
+        "Version": "0.19.0",
+        "Details": {
+          "GitCommit": ""
+        }
+      }
+    ],
+    "GitCommit": "29.1.3-0ubuntu3~24.04.2",
+    "GoVersion": "go1.24.4",
+    "KernelVersion": "7.0.0-43-generic",
+    "BuildTime": "2026-04-29T16:41:06.000000000+00:00"
+  },
+  "runtime_image_id": "sha256:28a09b742a0ea6d673fe818ea49e12216e1399c99b334336551308133082f11b",
+  "admin_image_id": "sha256:65a6ce634d975b67ee77c8d0f59248cbcb9d8b8f229d584c3cf5d624038bf963",
+  "source_inventory": {
+    "ok": true,
+    "buckets": 1,
+    "objects": 1,
+    "uploads": 1,
+    "versions": 3,
+    "delete_markers": 1,
+    "queued_events": 0,
+    "object_bytes": 16,
+    "warnings": []
+  },
+  "backup_sha256": "50d2756db716d4428a82d2bd58003e8f378ded170abe741a926d93336306fa15",
+  "restored_inventory": {
+    "ok": true,
+    "buckets": 1,
+    "objects": 1,
+    "uploads": 1,
+    "versions": 3,
+    "delete_markers": 1,
+    "queued_events": 0,
+    "object_bytes": 16,
+    "warnings": []
+  },
+  "recovery_to_verified_seconds": 3.162,
+  "cleanup_errors": [],
+  "finished_at": "2026-11-27T07:44:46.797958+00:00"
+}

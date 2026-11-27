@@ -1,8 +1,21 @@
 # Delivery acceptance
 
-**v0.1.2 passed single-machine delivery acceptance on 2026-11-26.**
+**The v0.1.2 source with the rc1 toolchain passed delivery acceptance on 2026-11-27.**
 The current Linux x86-64 machine is the delivery acceptance environment.
-The accepted source is `0f1de7b5a99d3233d9c8cc005c7ec9382daac23d`.
+The accepted source is `7e90110899e8de47c332f1ffcb28ca425d5cacf7`.
+
+## Required delivery checks
+
+- **Compiler:** `moonc v1.0.0-rc1+3c0520448 (2026-11-26)`, meeting
+  `moonc >= 1.0.0-rc1`. The hash-locked installer verifies this exact version.
+- **Runnable example:** `bash scripts/smoke.sh` prints the compiler version,
+  builds and starts the native server, verifies bucket creation, upload/download
+  byte equality, listing and deletion, then removes temporary data. It passed
+  locally and in CI with the rc1 compiler. Manual commands are in the
+  [README](../README.mbt.md#quick-start).
+
+Use the [locked toolchain setup](releasing.md#toolchain) to reproduce the
+accepted build without replacing an existing MoonBit installation.
 
 ## Scope and results
 
@@ -11,21 +24,26 @@ path-style URLs and the [documented S3 API subset](compatibility.md).
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Native checks | Passed | [CI](https://github.com/zzSmall6/moon-s3-server/actions/runs/45772572694): 40 unit tests, 23 local suites and extracted-bundle validation |
-| External clients | Passed | [Compatibility run](https://github.com/zzSmall6/moon-s3-server/actions/runs/45772593589): AWS CLI, TLS `mc`, 33 Ceph cases, proxy checks and seven SDK suites, including 100 MiB multipart |
-| Release package | Passed | Clean-source `v0.1.2` bundle: checksums, inventory, packaged binary/CLI, signed Unicode transfers and offline backup/restore |
-| Local deployment and recovery | Passed | [11-step report](acceptance/deployment-0f1de7b.json): nonroot Docker deployment, shutdown, backup, restore, multipart resume and rollback |
-| Mooncakes publication | Completed | [Zz04321/moon-s3-server 0.1.2](https://mooncakes.io/docs/Zz04321/moon-s3-server); registry build succeeded |
+| Native checks | Passed | [CI](https://github.com/zzSmall6/moon-s3-server/actions/runs/45959945648): 40 unit tests, 23 local suites and extracted-bundle validation |
+| External clients | Passed | [Compatibility run](https://github.com/zzSmall6/moon-s3-server/actions/runs/45959977940): AWS CLI, TLS `mc`, 33 Ceph cases, proxy checks and seven SDK suites, including 100 MiB multipart |
+| Release package | Passed | [Release workflow](https://github.com/zzSmall6/moon-s3-server/actions/runs/45959978190): rc1 native binary, checksums, packaged CLI, Docker smoke and recovery drill |
+| Local deployment and recovery | Passed | [11-step report](acceptance/deployment-7e90110.json): downloaded CI bundle, nonroot Docker deployment, shutdown, backup, restore, multipart resume and rollback |
 
 Client identities and suite results are retained in the
-[compatibility report](acceptance/compatibility-0f1de7b.json) and
-[SDK log](acceptance/sdk-0f1de7b.log).
+[compatibility report](acceptance/compatibility-7e90110.json) and
+[SDK log](acceptance/sdk-7e90110.log).
+
+The published Mooncakes `0.1.2` package predates this compiler upgrade.
+For this acceptance, use the source revision above or its matching release
+artifact; do not substitute the earlier registry package. The previous
+2026-11-26 reports remain in `docs/acceptance/` as historical evidence.
 
 ## Deployment evidence
 
-The deployment test used a locally built, clean-source Linux x86-64 bundle.
+The deployment test used the downloaded, clean-source Linux x86-64 bundle
+from the Release workflow above, built with the locked rc1 compiler.
 Its SHA-256 is
-`9db74e0e04396608c1ba8b8bfc1753a81a013363dab4c2a1247ad6ba8c715841`.
+`cf16a300d4aba7bf1d6b624d222ec1913d40d7866e1931467b7c196bf5673e8d`.
 The report records the compiler, Docker/runtime image identities, harness
 hashes, backup digest and per-step results.
 
