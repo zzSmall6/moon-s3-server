@@ -1,14 +1,15 @@
-# v0.1.2 preview
+# v0.1.3
 
 ## Delivery toolchain update
 
-The repository now pins `moonc v1.0.0-rc1+3c0520448`, satisfying the
+This release pins `moonc v1.0.0-rc1+3c0520448`, satisfying the
 `moonc >= 1.0.0-rc1` delivery requirement. Run `bash scripts/smoke.sh` for
-the self-contained runnable example. This source/toolchain update follows
-the published Mooncakes 0.1.2 package; use the accepted Git revision and
-matching release bundle identified in [acceptance](acceptance.md).
+the self-contained runnable example. The package includes the updated README
+and [delivery acceptance records](acceptance.md). The only runtime source
+change since published 0.1.2 uses the current buffer-write API with unchanged
+upload behavior.
 
-## Changes since 0.1.1
+## Included from 0.1.2
 
 - Custom `x-amz-meta-*` metadata on PUT and multipart initiation, returned by
   GET/HEAD/Range and historical reads. CopyObject supports COPY/REPLACE.
@@ -35,4 +36,4 @@ Allow disk space for staging, transaction copies, history and backups.
 
 `0.1.1` introduced multiple credentials and bucket permissions, streaming
 uploads with bounded staging, and a configurable free-disk reserve. These
-features remain available in `0.1.2`.
+features remain available in `0.1.3`.

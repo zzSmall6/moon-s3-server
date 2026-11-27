@@ -33,9 +33,10 @@ Client identities and suite results are retained in the
 [compatibility report](acceptance/compatibility-7e90110.json) and
 [SDK log](acceptance/sdk-7e90110.log).
 
-The published Mooncakes `0.1.2` package predates this compiler upgrade.
-For this acceptance, use the source revision above or its matching release
-artifact; do not substitute the earlier registry package. The previous
+Mooncakes `0.1.3` includes this compiler upgrade and the acceptance records.
+Its runtime source and locked toolchain match the accepted revision above;
+the version and documentation have been updated for publication. The
+published `0.1.2` package predates the compiler upgrade. The previous
 2026-11-26 reports remain in `docs/acceptance/` as historical evidence.
 
 ## Deployment evidence

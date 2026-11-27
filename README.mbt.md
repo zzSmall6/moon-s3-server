@@ -4,7 +4,7 @@ A small S3-compatible object storage server written in MoonBit for local
 development, CI and private deployments. Single machine, local disk,
 path-style URLs.
 
-**Version:** `0.1.2`; [single-machine delivery acceptance passed](docs/acceptance.md).
+**Version:** `0.1.3`; [single-machine delivery acceptance passed](docs/acceptance.md).
 
 ## Features
 
@@ -16,8 +16,8 @@ path-style URLs.
 - Transaction recovery, offline backup/restore, management CLI and Web console.
 - JSON configuration, graceful shutdown, logs, metrics and Docker packaging.
 
-New in `0.1.2`: [custom metadata](docs/metadata.md) and
-[bucket quotas](docs/quotas.md). See [release notes](docs/release-notes.md).
+`0.1.3` updates the compiler to `moonc 1.0.0-rc1` and includes delivery
+acceptance records. See [release notes](docs/release-notes.md).
 
 ## Quick start
 
