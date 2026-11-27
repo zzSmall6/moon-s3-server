@@ -31,8 +31,10 @@ Copilot environment setup workflow remains separate from these checks.
 [toolchain-lock.json](../scripts/toolchain-lock.json) pins the compiler and
 core archives by SHA-256. Upstream dated archive URLs were unavailable during
 setup, so the lock uses upstream `latest` URLs with exact content hashes.
-The locked snapshot contains `moon 0.1.20261117`, `moonc v0.10.21+06da1ed44`
-and `moonrun 0.1.20261117`; these versions are printed in workflow logs.
+The locked snapshot contains `moon 0.1.20261126`, `moonc v1.0.0-rc1+3c0520448`
+and `moonrun 0.1.20261126`. The compiler meets the delivery requirement
+`moonc >= 1.0.0-rc1`; the installer checks its exact version after extraction.
+These versions are printed in workflow logs.
 If those URLs change, installation fails before extracting the changed archive;
 it never silently adopts a new compiler. Review a toolchain update, refresh both
 hashes together, rerun native/SDK/external acceptance, then commit the new lock.

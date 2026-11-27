@@ -47,6 +47,9 @@ def main():
     compiler = destination / "bin/internal/tcc"
     compiler.chmod(compiler.stat().st_mode | 0o111)
     environment = dict(os.environ, MOON_HOME=str(destination), PATH=str(destination / "bin") + os.pathsep + os.environ["PATH"])
+    compiler_version = subprocess.check_output([destination / "bin/moonc", "-v"], env=environment, text=True).strip()
+    if compiler_version.split()[0] != lock["compiler_version"]:
+        raise ValueError(f"Unexpected compiler version: {compiler_version}")
     subprocess.run([destination / "bin/moon", "version", "--all"], env=environment, check=True)
     subprocess.run([destination / "bin/moon", "bundle", "--all"], cwd=destination / "lib/core", env=environment, check=True)
 

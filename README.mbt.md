@@ -21,8 +21,9 @@ New in `0.1.2`: [custom metadata](docs/metadata.md) and
 
 ## Quick start
 
-Requires the [MoonBit CLI](https://www.moonbitlang.com/download/).
-CI uses the hash-locked `moon 0.1.20261117` toolchain.
+Requires [MoonBit](https://www.moonbitlang.com/download/) with
+**`moonc >= 1.0.0-rc1`**. CI pins `moonc v1.0.0-rc1+3c0520448`
+and `moon 0.1.20261126`; see [toolchain setup](docs/releasing.md#toolchain).
 
 ```bash
 git clone https://github.com/zzSmall6/moon-s3-server.git
@@ -60,7 +61,17 @@ checksums set to `when_required`; see the [exact API boundary](docs/compatibilit
 
 ## Tools and development
 
+For a self-contained runnable example (build, start, upload/download, list
+and delete, then clean up temporary data):
+
 ```bash
+bash scripts/smoke.sh
+```
+
+To check the compiler and run all local tests:
+
+```bash
+moonc -v
 python3 scripts/moon_s3.py --help
 moon test --target native
 moon info && moon fmt

@@ -174,7 +174,7 @@ async fn RequestBody::receive(
       None => {
         self.buffered_size += chunk.length()
         config.runtime.buffered_bytes += chunk.length()
-        buffer.write_bytes(chunk.clamped_view())
+        buffer.write_bytesview(chunk.clamped_view())
       }
     }
   }

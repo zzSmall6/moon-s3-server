@@ -1,5 +1,13 @@
 # v0.1.2 preview
 
+## Delivery toolchain update
+
+The repository now pins `moonc v1.0.0-rc1+3c0520448`, satisfying the
+`moonc >= 1.0.0-rc1` delivery requirement. Run `bash scripts/smoke.sh` for
+the self-contained runnable example. This source/toolchain update follows
+the published Mooncakes 0.1.2 package; use the accepted Git revision and
+matching release bundle identified in [acceptance](acceptance.md).
+
 ## Changes since 0.1.1
 
 - Custom `x-amz-meta-*` metadata on PUT and multipart initiation, returned by

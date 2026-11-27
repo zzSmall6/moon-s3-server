@@ -18,6 +18,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
+echo "==> Compiler version"
+moonc -v
+
 echo "==> Building native server"
 moon build cmd/main --target native
 
